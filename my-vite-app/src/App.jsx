@@ -11,6 +11,10 @@ import Gallery from "./components/Gallery";
 import Team from "./components/Team";
 import Generator from "./components/Generator.jsx";
 import Contact from "./components/Contact.jsx";
+import Settings from "./components/Settings.jsx";
+import Profile from "./components/Profile.jsx";
+import ImageEditor from "./components/ImageEditor.jsx";
+import AccuracyChart from "./components/AccuracyChart.jsx";
 
 function App() {
   return (
@@ -26,6 +30,10 @@ function App() {
         <Route path="/gallery" element={<Gallery />} />
         <Route path="/team" element={<Team />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/editor" element={<ImageEditor />} />
+        <Route path="/accuracy" element={<AccuracyChart />} />
       </Routes>
     </div>
   );

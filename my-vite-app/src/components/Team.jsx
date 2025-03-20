@@ -8,21 +8,24 @@ import {
   Twitter,
 } from "lucide-react";
 import anime from "animejs";
+import venkatesh from "../assets/venkatesh1.png";
 import manohar from "../assets/Manohar.jpg";
+import kusuma from "../assets/Kusuma.jpg";
+
 const teamMembers = [
   {
     name: "Manohar",
     img: manohar,
     role: "Full Stack Developer",
     social: {
-      github: "https://github.com",
-      linkedin: "https://linkedin.com",
+      github: "https://github.com/ManoharTumati",
+      linkedin: "https://www.linkedin.com/in/manohar-tumati-b86491243",
       twitter: "https://twitter.com",
     },
   },
   {
     name: "Venkatesh",
-    img: "/static/teamImages/letterV.png",
+    img: venkatesh,
     role: "UI/UX Designer",
     social: {
       github: "https://github.com",
@@ -32,10 +35,10 @@ const teamMembers = [
   },
   {
     name: "Kusuma",
-    img: "/static/teamImages/letterV.png",
+    img: kusuma,
     role: "Backend Developer",
     social: {
-      github: "https://github.com",
+      github: "https://github.com/venkatakusuma9",
       linkedin: "https://linkedin.com",
       twitter: "https://twitter.com",
     },
@@ -79,6 +82,7 @@ function Team() {
       sparkle.style.height = "4px";
       sparkle.style.background = "white";
       sparkle.style.borderRadius = "50%";
+      // Disable pointer events so sparkles don’t block clicks
       sparkle.style.pointerEvents = "none";
 
       // Random position
@@ -104,6 +108,8 @@ function Team() {
       symbol.textContent = symbols[Math.floor(Math.random() * symbols.length)];
       symbol.style.left = Math.random() * 100 + "vw";
       symbol.style.top = Math.random() * 100 + "vh";
+      // Disable pointer events on academic symbols
+      symbol.style.pointerEvents = "none";
       container.appendChild(symbol);
       symbolElements.push(symbol);
     });
@@ -118,22 +124,12 @@ function Team() {
     // Animate symbols
     const symbolAnimation = anime({
       targets: symbolElements,
-      translateY: function () {
-        return anime.random(-50, 50);
-      },
-      translateX: function () {
-        return anime.random(-50, 50);
-      },
-      rotate: function () {
-        return anime.random(-45, 45);
-      },
+      translateY: () => anime.random(-50, 50),
+      translateX: () => anime.random(-50, 50),
+      rotate: () => anime.random(-45, 45),
       opacity: [0.2, 0.4],
-      duration: function () {
-        return anime.random(3000, 5000);
-      },
-      delay: function () {
-        return anime.random(0, 1000);
-      },
+      duration: () => anime.random(3000, 5000),
+      delay: () => anime.random(0, 1000),
       direction: "alternate",
       loop: true,
       easing: "easeInOutQuad",
@@ -144,23 +140,15 @@ function Team() {
       targets: sparkles,
       opacity: [0, 0.8, 0],
       scale: [0, 1, 0],
-      translateY: function () {
-        return anime.random(-100, 100);
-      },
-      translateX: function () {
-        return anime.random(-100, 100);
-      },
-      duration: function () {
-        return anime.random(1000, 3000);
-      },
-      delay: function () {
-        return anime.random(0, 2000);
-      },
+      translateY: () => anime.random(-100, 100),
+      translateX: () => anime.random(-100, 100),
+      duration: () => anime.random(1000, 3000),
+      delay: () => anime.random(0, 2000),
       loop: true,
       easing: "easeInOutQuad",
     });
 
-    // Cleanup
+    // Cleanup on unmount
     return () => {
       symbolAnimation.pause();
       sparkleAnimation.pause();
@@ -210,6 +198,8 @@ function Team() {
     canvas.style.left = 0;
     canvas.style.width = "100%";
     canvas.style.height = "100%";
+    // Ensure the canvas does not intercept pointer events
+    canvas.style.pointerEvents = "none";
     container.appendChild(canvas);
 
     const ctx = canvas.getContext("2d");
@@ -306,6 +296,7 @@ function Team() {
         .sparkle {
           mix-blend-mode: screen;
           filter: blur(1px);
+          pointer-events: none;
         }
 
         .academic-symbol {
@@ -410,36 +401,30 @@ function Team() {
                       <p className="text-gray-400 mb-6">{member.role}</p>
 
                       <div className="flex justify-center gap-4">
-                        <motion.a
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
+                        <a
                           href={member.social.github}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="p-2 rounded-full bg-gray-700/30 hover:bg-gray-700/50 text-gray-300 hover:text-gray-100 transition-all"
                         >
                           <Github className="w-5 h-5" />
-                        </motion.a>
-                        <motion.a
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
+                        </a>
+                        <a
                           href={member.social.linkedin}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="p-2 rounded-full bg-gray-700/30 hover:bg-gray-700/50 text-gray-300 hover:text-gray-100 transition-all"
                         >
                           <Linkedin className="w-5 h-5" />
-                        </motion.a>
-                        <motion.a
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
+                        </a>
+                        <a
                           href={member.social.twitter}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="p-2 rounded-full bg-gray-700/30 hover:bg-gray-700/50 text-gray-300 hover:text-gray-100 transition-all"
                         >
                           <Twitter className="w-5 h-5" />
-                        </motion.a>
+                        </a>
                       </div>
                     </motion.div>
                   </div>

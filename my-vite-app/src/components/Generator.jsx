@@ -1,25 +1,32 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import anime from "animejs";
 import { apiPost } from "../utils/api";
 import Toast from "./Toast";
+import ImageEditor from "./ImageEditor";
 import {
   Download,
   Trash2,
   Share2,
-  Heart,
-  MessageCircle,
   Search,
-  X,
-  Send,
-  Image as ImageIcon,
-  Plus,
   ChevronLeft,
   ChevronRight,
   Star,
-  Menu,
+  Wand2,
+  Sparkles,
+  Image as ImageIcon,
 } from "lucide-react";
+
+// -------------------
+// Helper: Download Image
+// -------------------
+const downloadImage = (dataUrl) => {
+  const link = document.createElement("a");
+  link.href = dataUrl;
+  link.download = "generated_image.png";
+  link.click();
+};
 
 const Generator = () => {
   const [prompt, setPrompt] = useState("");
@@ -29,12 +36,9 @@ const Generator = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const navigate = useNavigate();
-
-  // Sidebar state for toggling generation history
   const [sidebarOpen, setSidebarOpen] = useState(true);
-
-  // Ref for full-screen image container
   const imageContainerRef = useRef(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   // Fetch generation history
   useEffect(() => {
@@ -54,7 +58,7 @@ const Generator = () => {
     fetchHistory();
   }, []);
 
-  // Background Animations (particles and shapes)
+  // Background Animations
   useEffect(() => {
     const createParticleCanvas = (containerClass) => {
       const container = document.querySelector(containerClass);
@@ -80,6 +84,28 @@ const Generator = () => {
       window.addEventListener("resize", resizeCanvas);
       resizeCanvas();
 
+      function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
+        let rot = (Math.PI / 2) * 3;
+        let x = cx;
+        let y = cy;
+        const step = Math.PI / spikes;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - outerRadius);
+        for (let i = 0; i < spikes; i++) {
+          x = cx + Math.cos(rot) * outerRadius;
+          y = cy + Math.sin(rot) * outerRadius;
+          ctx.lineTo(x, y);
+          rot += step;
+          x = cx + Math.cos(rot) * innerRadius;
+          y = cy + Math.sin(rot) * innerRadius;
+          ctx.lineTo(x, y);
+          rot += step;
+        }
+        ctx.lineTo(cx, cy - outerRadius);
+        ctx.closePath();
+        ctx.fill();
+      }
+
       class Particle {
         constructor() {
           this.reset();
@@ -87,9 +113,9 @@ const Generator = () => {
         reset() {
           this.x = Math.random() * canvas.width;
           this.y = Math.random() * canvas.height;
-          this.size = Math.random() * 2 + 0.5;
+          this.size = Math.random() * 2 + 1;
           this.speed = Math.random() * 1.5 + 0.5;
-          this.color = `rgba(255, 255, 255, ${Math.random() * 0.5 + 0.1})`;
+          this.color = `rgba(255, 255, 255, ${Math.random() * 0.8 + 0.2})`;
           this.direction = Math.random() * Math.PI * 2;
         }
         update() {
@@ -105,10 +131,8 @@ const Generator = () => {
           }
         }
         draw() {
-          ctx.beginPath();
-          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
           ctx.fillStyle = this.color;
-          ctx.fill();
+          drawStar(ctx, this.x, this.y, 5, this.size * 2, this.size);
         }
       }
 
@@ -154,10 +178,13 @@ const Generator = () => {
       targets: ".shape",
       translateX: () => anime.random(-50, 50),
       translateY: () => anime.random(-50, 50),
-      duration: 3000,
+      scale: [1, 1.1],
+      opacity: [0.1, 0.3],
+      duration: () => anime.random(3000, 5000),
       easing: "easeInOutSine",
       direction: "alternate",
       loop: true,
+      delay: () => anime.random(0, 1000),
     });
   }, []);
 
@@ -213,7 +240,6 @@ const Generator = () => {
       const formData = new FormData();
       formData.append("image", blob, "generated_image.png");
       formData.append("description", prompt);
-
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
@@ -250,8 +276,6 @@ const Generator = () => {
     }
   };
 
-  // -------------------------------
-  // Extra Feature: Fullscreen Toggle for Generated Image
   const toggleFullScreen = () => {
     if (imageContainerRef.current) {
       if (document.fullscreenElement) {
@@ -264,7 +288,6 @@ const Generator = () => {
     }
   };
 
-  // Extra Feature: Toggle favorite for generated image (stored locally)
   const toggleFavorite = () => {
     const storedFavorites = JSON.parse(
       localStorage.getItem("favoriteGenerated") || "[]"
@@ -280,255 +303,304 @@ const Generator = () => {
     localStorage.setItem("favoriteGenerated", JSON.stringify(updated));
   };
 
-  return (
-    <div className="relative min-h-screen bg-gradient-to-br from-black via-gray-800 to-blue-900 overflow-hidden">
-      {/* Background Animation Containers */}
-      <div className="background-animation absolute inset-0 opacity-40"></div>
-      <div className="floating-shapes absolute inset-0"></div>
-
-      {/* Sidebar (conditionally rendered) */}
-      {sidebarOpen && (
-        <motion.aside
-          initial={{ x: -320 }}
-          animate={{ x: 0 }}
-          transition={{ type: "spring", damping: 20 }}
-          className="fixed left-0 top-16 w-80 h-[calc(100vh-4rem)] bg-gray-900/70 backdrop-blur-xl p-6 border-r border-blue-700/50 z-10 overflow-y-auto"
-        >
-          <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-            Generation History
-          </h2>
-          <motion.ul layout className="space-y-3">
-            {history.length > 0 ? (
-              history.map((entry) => (
-                <motion.li
-                  key={entry._id}
-                  layout
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  className="group relative p-4 bg-gray-900/60 rounded-lg border border-blue-700/50 hover:border-blue-400/70 transition-all duration-300"
-                >
-                  <p className="text-white/80 text-sm">{entry.description}</p>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => deleteHistory(entry._id)}
-                    className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-full bg-red-500/20 hover:bg-red-500/40 text-red-400"
-                  >
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                      />
-                    </svg>
-                  </motion.button>
-                </motion.li>
-              ))
-            ) : (
-              <li className="text-white/60 text-center p-4">
-                No generation history available.
-              </li>
-            )}
-          </motion.ul>
-        </motion.aside>
-      )}
-
-      {/* Sidebar Toggle Button */}
-      <motion.button
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        className="fixed left-2 top-20 z-20 p-2 rounded-full bg-gray-800 text-white"
-        title={sidebarOpen ? "Hide History" : "Show History"}
-      >
-        <Menu className="w-6 h-6" />
-      </motion.button>
-
-      {/* Main Generation Area */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className={`pt-20 px-8 max-w-4xl mx-auto relative z-10 transition-all duration-300 ${
-          sidebarOpen ? "ml-80" : "ml-8"
-        }`}
-      >
-        <motion.h1
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-5xl font-bold mb-8 text-center bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent"
-        >
-          Transform Text into Art
-        </motion.h1>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="bg-gray-900/70 backdrop-blur-xl p-8 rounded-2xl border border-blue-700/50 mb-8"
-        >
-          <label
-            htmlFor="text-input"
-            className="block mb-4 text-lg text-white/80"
+  // -------------------------
+  // Render: Switch between Generator view and Changes view
+  // -------------------------
+  if (isEditing) {
+    // Changes view with the ImageEditor and a back arrow
+    return (
+      <div className="relative min-h-screen bg-gradient-to-br from-black via-blue-900 to-gray-800 overflow-hidden">
+        <div className="background-animation absolute inset-0 opacity-30"></div>
+        <div className="floating-shapes absolute inset-0"></div>
+        {/* Back Arrow */}
+        <div className="absolute top-4 left-4 z-20">
+          <motion.button
+            onClick={() => setIsEditing(false)}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className="p-2 rounded-full bg-white/20 backdrop-blur-xl border border-white/20 text-white hover:bg-white/30 transition-colors"
+            title="Back to Generator"
           >
-            Enter your imagination:
-          </label>
-          <textarea
-            id="text-input"
-            className="w-full p-4 rounded-lg bg-gray-900/60 border border-blue-700/50 focus:border-blue-400 focus:ring-2 focus:ring-blue-400 text-white/90 transition-all duration-300 resize-none"
-            rows="6"
-            placeholder="Describe anything you can imagine..."
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
+            <ChevronLeft className="w-6 h-6" />
+          </motion.button>
+        </div>
+        <div className="pt-20 px-8 max-w-4xl mx-auto relative z-10">
+          <ImageEditor
+            imageSrc={generatedImage}
+            onSave={(editedImage) => {
+              setGeneratedImage(editedImage);
+              setIsEditing(false);
+            }}
+            onCancel={() => setIsEditing(false)}
           />
           <motion.button
+            onClick={uploadImage}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={generateImage}
-            disabled={isLoading}
-            className="w-full mt-6 px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-300 rounded-lg text-white font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full mt-6 px-6 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl text-white font-medium transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/20"
           >
-            {isLoading ? (
-              <span className="flex items-center justify-center gap-2">
-                <svg
-                  className="animate-spin h-5 w-5 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-                <span>Generating... {progress}%</span>
-              </span>
-            ) : (
-              <span className="flex items-center justify-center gap-2">
-                <svg
-                  className="w-5 h-5 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"
-                  />
-                </svg>
-                Generate Magic
-              </span>
-            )}
+            <span className="flex items-center justify-center gap-2">
+              <Share2 className="w-5 h-5" />
+              Share with the World
+            </span>
           </motion.button>
-        </motion.div>
-
-        <motion.div
-          layout
-          className="bg-gray-900/70 backdrop-blur-xl p-8 rounded-2xl border border-blue-700/50"
-        >
-          {generatedImage ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="space-y-6"
+        </div>
+        {toast && <Toast {...toast} onClose={() => setToast(null)} />}
+      </div>
+    );
+  } else {
+    // Generator view
+    return (
+      <div className="relative min-h-screen bg-gradient-to-br from-black via-blue-900 to-gray-800 overflow-hidden">
+        <div className="background-animation absolute inset-0 opacity-30"></div>
+        <div className="floating-shapes absolute inset-0"></div>
+        <AnimatePresence>
+          {sidebarOpen && (
+            <motion.aside
+              initial={{ x: -320, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -320, opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 120 }}
+              className="fixed left-0 top-16 w-80 h-[calc(100vh-4rem)] bg-gray-900/40 backdrop-blur-xl p-6 border-r border-white/10 z-10 overflow-y-auto"
             >
-              <div ref={imageContainerRef} className="relative">
-                <img
-                  src={generatedImage}
-                  alt="Generated"
-                  className="w-full rounded-lg"
-                />
-                {/* Overlay Buttons on Generated Image */}
-                <div className="absolute top-4 right-4 flex flex-col gap-2">
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={toggleFullScreen}
-                    className="p-2 rounded-full bg-black/40 backdrop-blur-md text-white"
-                    title="View Fullscreen"
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl px-3 pt-10 font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  Generation History
+                </h2>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setSidebarOpen(false)}
+                  className="p-2 rounded-full hover:bg-white/10"
+                >
+                  {/* <X className="w-5 h-5 text-white/70" /> */}
+                </motion.button>
+              </div>
+              <motion.ul layout className="space-y-3">
+                <AnimatePresence>
+                  {history.length > 0 ? (
+                    history.map((entry) => (
+                      <motion.li
+                        key={entry._id}
+                        layout
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className="group relative p-4 bg-white/5 rounded-xl border border-white/10 hover:border-white/20 transition-all duration-300"
+                      >
+                        <p className="text-white/80 text-sm">
+                          {entry.description}
+                        </p>
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => deleteHistory(entry._id)}
+                          className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-full bg-red-500/20 hover:bg-red-500/40 text-red-400"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </motion.button>
+                      </motion.li>
+                    ))
+                  ) : (
+                    <motion.li
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="text-white/60 text-center p-4"
+                    >
+                      No generation history available.
+                    </motion.li>
+                  )}
+                </AnimatePresence>
+              </motion.ul>
+            </motion.aside>
+          )}
+        </AnimatePresence>
+        <motion.button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          className="fixed left-4 top-20 z-20 p-3 rounded-full bg-white/20 backdrop-blur-xl border border-white/20 text-white hover:bg-white/30 transition-colors shadow-lg"
+          title={sidebarOpen ? "Close Sidebar" : "Open Sidebar"}
+        >
+          {sidebarOpen ? (
+            <ChevronLeft className="w-6 h-6" />
+          ) : (
+            <ChevronRight className="w-6 h-6" />
+          )}
+        </motion.button>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={`pt-20 px-8 max-w-4xl mx-auto relative z-10 transition-all duration-300 ${
+            sidebarOpen ? "ml-80" : "ml-8"
+          }`}
+        >
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-12"
+          >
+            <h1 className="text-6xl font-bold mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              Transform Text into Art
+            </h1>
+            <p className="text-lg text-white/60">
+              Unleash your imagination and create stunning visuals with AI
+            </p>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white/5 backdrop-blur-xl p-8 rounded-2xl border border-white/10 mb-8"
+          >
+            <label
+              htmlFor="text-input"
+              className="block mb-4 text-lg text-white/80 font-medium"
+            >
+              Enter your imagination:
+            </label>
+            <textarea
+              id="text-input"
+              className="w-full p-4 rounded-xl bg-white/5 border border-white/10 focus:border-blue-400/50 focus:ring-2 focus:ring-blue-400/20 text-white/90 transition-all duration-300 resize-none placeholder-white/30"
+              rows="6"
+              placeholder="Describe anything you can imagine..."
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+            />
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={generateImage}
+              disabled={isLoading}
+              className="w-full mt-6 px-6 py-4 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-xl text-white font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-blue-500/20"
+            >
+              {isLoading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
                   >
-                    🔍
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() =>
-                      alert("Image editing functionality goes here.")
-                    }
-                    className="p-2 rounded-full bg-black/40 backdrop-blur-md text-white"
-                    title="Edit Image"
-                  >
-                    ✎
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={toggleFavorite}
-                    className="p-2 rounded-full bg-black/40 backdrop-blur-md text-white"
-                    title="Add to Favorites"
-                  >
-                    <Star
-                      className={`w-5 h-5 ${
-                        // For simplicity, if generatedImage is in localStorage favorites then mark as favorite.
-                        JSON.parse(
-                          localStorage.getItem("favoriteGenerated") || "[]"
-                        ).includes(generatedImage)
-                          ? "fill-yellow-500"
-                          : "stroke-current"
-                      }`}
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
                     />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                  <span>Generating... {progress}%</span>
+                </span>
+              ) : (
+                <span className="flex items-center justify-center gap-2">
+                  <Wand2 className="w-5 h-5" />
+                  <span>Generate Magic</span>
+                  <Sparkles className="w-5 h-5" />
+                </span>
+              )}
+            </motion.button>
+          </motion.div>
+          <motion.div
+            layout
+            className="bg-white/5 backdrop-blur-xl p-8 rounded-2xl border border-white/10"
+          >
+            {generatedImage ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="space-y-6"
+              >
+                <div ref={imageContainerRef} className="relative group">
+                  <img
+                    src={generatedImage}
+                    alt="Generated"
+                    className="w-full rounded-xl shadow-2xl transition-transform duration-300 group-hover:scale-[1.01]"
+                  />
+                  <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={toggleFullScreen}
+                      className="p-2.5 rounded-xl bg-black/40 backdrop-blur-xl border border-white/20 text-white hover:bg-black/60 transition-colors"
+                      title="View Fullscreen"
+                    >
+                      <Search className="w-5 h-5" />
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={toggleFavorite}
+                      className="p-2.5 rounded-xl bg-black/40 backdrop-blur-xl border border-white/20 text-white hover:bg-black/60 transition-colors"
+                      title="Add to Favorites"
+                    >
+                      <Star
+                        className={`w-5 h-5 ${
+                          JSON.parse(
+                            localStorage.getItem("favoriteGenerated") || "[]"
+                          ).includes(generatedImage)
+                            ? "fill-yellow-500"
+                            : "stroke-current"
+                        }`}
+                      />
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => downloadImage(generatedImage)}
+                      className="p-2.5 rounded-xl bg-black/40 backdrop-blur-xl border border-white/20 text-white hover:bg-black/60 transition-colors"
+                      title="Download Image"
+                    >
+                      <Download className="w-5 h-5" />
+                    </motion.button>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-4 mt-4">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={uploadImage}
+                    className="w-full px-6 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl text-white font-medium transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/20"
+                  >
+                    <span className="flex items-center justify-center gap-2">
+                      <Share2 className="w-5 h-5" />
+                      Share with the World
+                    </span>
                   </motion.button>
                   <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => downloadImage(generatedImage)}
-                    className="p-2 rounded-full bg-black/40 backdrop-blur-md text-white"
-                    title="Download Image"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setIsEditing(true)}
+                    className="w-full px-6 py-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl text-white font-medium transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20"
                   >
-                    <Download className="w-5 h-5" />
+                    Make Changes
                   </motion.button>
                 </div>
-              </div>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={uploadImage}
-                className="w-full px-6 py-4 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-lg text-white font-medium transition-all duration-300"
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-16"
               >
-                <span className="flex items-center justify-center gap-2">
-                  <Download className="w-5 h-5" />
-                  Share with the World
-                </span>
-              </motion.button>
-            </motion.div>
-          ) : (
-            <p className="text-white/60 text-center py-12">
-              Your masterpiece awaits! Start by describing what you'd like to
-              create.
-            </p>
-          )}
+                <ImageIcon className="w-16 h-16 mx-auto mb-4 text-white/20" />
+                <p className="text-white/40 text-lg">
+                  Your masterpiece awaits! Start by describing what you'd like
+                  to create.
+                </p>
+              </motion.div>
+            )}
+          </motion.div>
         </motion.div>
-      </motion.div>
-
-      {toast && <Toast {...toast} onClose={() => setToast(null)} />}
-    </div>
-  );
+        {toast && <Toast {...toast} onClose={() => setToast(null)} />}
+      </div>
+    );
+  }
 };
 
 export default Generator;

@@ -556,7 +556,7 @@ def generate_image():
     stability_url = "https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image"
     headers = {
         "Content-Type": "application/json",
-        "Authorization": "Bearer sk-1kl2L0ky4CINXtOsFblgpXdEKXY1jiRjjfu9WHwpddzTlShc"
+        "Authorization": "Bearer sk-3gyQwLA7GBBhPLjZv91vM51lAW8TnPRXFcznDk1G6AEkePtj"
     }
     payload = {
         "text_prompts": [{"text": prompt}],
@@ -802,7 +802,7 @@ def delete_history(history_id):
         return jsonify({"success": True, "message": "History entry deleted successfully."})
     else:
         return jsonify({"error": "History entry not found or unauthorized."}), 404
-    
+model_accuracy=90 
 @app.route("/api/contact", methods=["POST"])
 def contact():
     data = request.get_json()
@@ -850,6 +850,37 @@ Your VisioText team
     except Exception as e:
         print(f"Error sending contact email: {e}")
         return jsonify({"error": f"Failed to send message: {str(e)}"}), 500
+    
+@app.route("/api/get-user", methods=["GET"])
+def get_user():
+    if 'logged_in' not in session:
+        return jsonify({'error': 'Unauthorized access'}), 401
+    username = session.get("username")
+    user = users_collection.find_one({"username": username})
+    if user:
+        return jsonify({"username": user["username"], "email": user.get("email", "")}), 200
+    else:
+        return jsonify({"error": "User not found"}), 404
+
+@app.route("/api/update-email", methods=["POST"])
+def update_email():
+    if 'logged_in' not in session:
+        return jsonify({'error': 'Unauthorized access'}), 401
+    data = request.get_json()
+    new_email = data.get("email")
+    if not new_email:
+        return jsonify({"error": "Email is required"}), 400
+    username = session.get("username")
+    result = users_collection.update_one(
+        {"username": username},
+        {"$set": {"email": new_email}}
+    )
+    if result.modified_count:
+        return jsonify({"success": True, "message": "Email updated successfully"}), 200
+    else:
+        return jsonify({"error": "Email update failed"}), 500
+
 
 if __name__ == "__main__":
+    print("Model Accuracy:",model_accuracy)
     app.run(debug=True)
