@@ -8,5 +8,6 @@ Pillow>=8.0.0
 tensorflow>=2.0.0
 numpy>=1.19.0
 Werkzeug>=2.0.0
-python-dotenv>=24.2
+python-dotenv>=1.0.0
+
 
