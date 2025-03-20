@@ -1415,6 +1415,9 @@ def update_email():
     else:
         return jsonify({"error": "Email update failed"}), 500
 
+@app.route("/")
+def index():
+    return "Hello, world!"
 
 if __name__ == "__main__":
     model_accuracy = int(os.getenv('MODEL_ACCURACY', 90))
