@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import anime from "animejs";
 import { Mail, Send, CheckCircle, AlertCircle } from "lucide-react";
 import { apiPost } from "../utils/api";
+import Toast from "./Toast";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -10,7 +11,8 @@ const Contact = () => {
     subject: "",
     message: "",
   });
-  const [status, setStatus] = useState("");
+  // Use toast state instead of a separate status state
+  const [toast, setToast] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -105,10 +107,14 @@ const Contact = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatus("");
+    // Clear any previous toast message
+    setToast(null);
 
     if (!formData.name || !formData.email || !formData.message) {
-      setStatus("Please fill in all required fields.");
+      setToast({
+        message: "Please fill in all required fields.",
+        isError: true,
+      });
       return;
     }
 
@@ -117,14 +123,17 @@ const Contact = () => {
       // Use apiPost so the full URL and credentials are included
       const response = await apiPost("/contact", formData);
       if (response.success) {
-        setStatus("Your message has been sent successfully!");
+        setToast({
+          message: "Your message has been sent successfully!",
+          isError: false,
+        });
         setFormData({
           name: "",
           email: "",
           subject: "",
           message: "",
         });
-        // Animate success message
+        // Optional: animate the toast message
         anime({
           targets: ".status-message",
           scale: [0.9, 1],
@@ -133,14 +142,19 @@ const Contact = () => {
           easing: "easeOutElastic(1, .5)",
         });
       } else {
-        setStatus(
-          response.error ||
-            "There was an error sending your message. Please try again."
-        );
+        setToast({
+          message:
+            response.error ||
+            "There was an error sending your message. Please try again.",
+          isError: true,
+        });
       }
     } catch (error) {
       console.error(error);
-      setStatus("There was an error sending your message. Please try again.");
+      setToast({
+        message: "There was an error sending your message. Please try again.",
+        isError: true,
+      });
     } finally {
       setLoading(false);
     }
@@ -160,18 +174,18 @@ const Contact = () => {
             </h1>
           </div>
 
-          {status && (
+          {toast && (
             <div
               className={`status-message mb-4 p-2 rounded-lg flex items-center justify-center text-sm ${
-                status.includes("success") ? "bg-green-500/20" : "bg-red-500/20"
+                toast.isError ? "bg-red-500/20" : "bg-green-500/20"
               }`}
             >
-              {status.includes("success") ? (
-                <CheckCircle className="w-4 h-4 mr-2 text-green-400" />
-              ) : (
+              {toast.isError ? (
                 <AlertCircle className="w-4 h-4 mr-2 text-red-400" />
+              ) : (
+                <CheckCircle className="w-4 h-4 mr-2 text-green-400" />
               )}
-              <span className="text-white">{status}</span>
+              <span className="text-white">{toast.message}</span>
             </div>
           )}
 
