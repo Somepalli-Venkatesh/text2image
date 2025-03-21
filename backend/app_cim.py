@@ -1016,7 +1016,8 @@ def api_register():
 def api_login():
     data = request.get_json()
     username = data.get("username")
-    password = data.get("password")
+    # Ensure the password is treated as a string
+    password = str(data.get("password"))
     user = users_collection.find_one({
         "$or": [{"username": username}, {"email": username}]
     })
