@@ -1,6 +1,7 @@
 // components/Profile.jsx
 import React, { useState, useEffect } from "react";
 import anime from "animejs";
+import { apiGet } from "../utils/api";
 
 function Profile() {
   const username = localStorage.getItem("username");
