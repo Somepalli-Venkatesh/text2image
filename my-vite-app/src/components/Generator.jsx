@@ -627,7 +627,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import anime from "animejs";
-import { apiPost, apiGet } from "../utils/api";
+import { apiPost, apiGet, apiDelete } from "../utils/api";
 import Toast from "./Toast";
 import ImageEditor from "./ImageEditor";
 import {
@@ -865,6 +865,27 @@ const Generator = () => {
       u8arr[n] = bstr.charCodeAt(n);
     }
     return new Blob([u8arr], { type: mime });
+  };
+
+  const deleteHistory = async (historyId) => {
+    try {
+      const res = await apiDelete(`/delete_history/${historyId}`);
+      if (res.success) {
+        setToast({ message: res.message, isError: false });
+        // Remove the deleted entry from the history state
+        setHistory((prevHistory) =>
+          prevHistory.filter((entry) => entry._id !== historyId)
+        );
+      } else {
+        setToast({
+          message: res.error || "Failed to delete history",
+          isError: true,
+        });
+      }
+    } catch (error) {
+      console.error("Delete history error:", error);
+      setToast({ message: "Failed to delete history", isError: true });
+    }
   };
 
   const uploadImage = async () => {
