@@ -1,6 +1,6 @@
-// components/Settings.jsx
 import React, { useState, useEffect } from "react";
 import anime from "animejs";
+import { apiGet } from "../utils/api"; // Use your API utility
 
 function Settings() {
   // Account Settings State
@@ -37,10 +37,9 @@ function Settings() {
   // Advanced Security: Delete Account Modal State
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  // Fetch user info via /api/get-user and prefill reset email
+  // Fetch user info via /api/get-user and prefill email fields
   useEffect(() => {
-    fetch("/api/get-user")
-      .then((res) => res.json())
+    apiGet("/get-user")
       .then((data) => {
         if (data.email) {
           setUserEmail(data.email);
@@ -48,7 +47,7 @@ function Settings() {
           setEmailForReset(data.email);
         }
       })
-      .catch((err) => console.error(err));
+      .catch((err) => console.error("Error fetching user info:", err));
   }, []);
 
   // Animate the settings card on mount
@@ -69,6 +68,7 @@ function Settings() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: newEmail }),
+        credentials: "include",
       });
       const data = await response.json();
       if (response.ok) {
@@ -91,6 +91,7 @@ function Settings() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: emailForReset }),
+        credentials: "include",
       });
       const data = await response.json();
       if (response.ok) {
@@ -117,11 +118,11 @@ function Settings() {
           otp,
           new_password: newPassword,
         }),
+        credentials: "include",
       });
       const data = await response.json();
       if (response.ok) {
         setPasswordMessage(data.message || "Password reset successfully!");
-        // Reset fields and exit OTP mode
         setOtp("");
         setNewPassword("");
         setOtpSent(false);
@@ -178,13 +179,13 @@ function Settings() {
     localStorage.setItem("showActivityStatus", newValue);
   };
 
-  // Advanced Security: Delete Account: Show modal
+  // Advanced Security: Delete Account Modal handlers
   const handleDeleteAccount = () => {
     setShowDeleteModal(true);
   };
 
   const confirmDeleteAccount = () => {
-    // Replace this alert with your backend deletion logic
+    // Replace this alert with your backend deletion logic when available
     alert("Account deletion feature is under development.");
     setShowDeleteModal(false);
   };
@@ -352,7 +353,6 @@ function Settings() {
             </h2>
             <div className="flex items-center justify-between">
               <span className="text-gray-300">Theme Mode:</span>
-              {/* Custom Toggle Button */}
               <div
                 onClick={toggleTheme}
                 className="relative w-12 h-6 bg-gray-600 rounded-full cursor-pointer transition-colors duration-300"
