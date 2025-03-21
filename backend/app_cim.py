@@ -917,8 +917,8 @@ OTP_SECRET_KEY = pyotp.random_base32()
 
 app = Flask(__name__, static_folder='static')
 
-# Get frontend URL from environment variables with fallback to localhost:5173
-FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://text2image-front.vercel.app')
 # Configure CORS to allow requests from the frontend URL
 CORS(app, 
      origins=[FRONTEND_URL], 
