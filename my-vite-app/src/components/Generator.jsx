@@ -875,14 +875,10 @@ const Generator = () => {
       formData.append("image", blob, "generated_image.png");
       formData.append("description", prompt);
 
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-      });
-
+      // Use your API utility function here
+      const res = await apiPost("/upload", formData, true); // Note: using "/upload" as the endpoint
       // Check if unauthorized
-      if (res.status === 401) {
+      if (res.error && res.error === "Unauthorized access") {
         setToast({
           message: "You need to log in to upload images",
           isError: true,
@@ -891,23 +887,12 @@ const Generator = () => {
         return;
       }
 
-      // Check content type before parsing JSON
-      const contentType = res.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        console.error("Received non-JSON response:", await res.text());
-        setToast({
-          message: "Server returned an unexpected response format",
-          isError: true,
-        });
-        return;
-      }
-
-      const data = await res.json();
-      if (data.success) {
+      // Since apiPost returns JSON, we can process it here
+      if (res.success) {
         setToast({ message: "Image uploaded to gallery!", isError: false });
         navigate("/gallery");
       } else {
-        setToast({ message: data.error || "Upload failed", isError: true });
+        setToast({ message: res.error || "Upload failed", isError: true });
       }
     } catch (error) {
       console.error("Upload error:", error);
