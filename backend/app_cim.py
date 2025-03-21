@@ -1418,6 +1418,17 @@ def update_email():
         return jsonify({"success": True, "message": "Email updated successfully"}), 200
     else:
         return jsonify({"error": "Email update failed"}), 500
+    
+@app.route("/api/session-info", methods=["GET"])
+def session_info():
+    # Return some session keys for debugging
+    session_data = {
+        "logged_in": session.get("logged_in"),
+        "username": session.get("username"),
+        "history_list": session.get("history_list"),
+    }
+    return jsonify({"success": True, "session": session_data})
+
 
 @app.route("/")
 def index():
