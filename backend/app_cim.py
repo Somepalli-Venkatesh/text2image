@@ -916,7 +916,15 @@ import secrets
 OTP_SECRET_KEY = pyotp.random_base32()
 
 app = Flask(__name__, static_folder='static')
-CORS(app, supports_credentials=True)  # Allow cross-origin requests from your React app
+
+# Get frontend URL from environment variables with fallback to localhost:5173
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+# Configure CORS to allow requests from the frontend URL
+CORS(app, 
+     origins=[FRONTEND_URL], 
+     supports_credentials=True,
+     allow_headers=["Content-Type", "Authorization"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 
 # Configuration from environment variables
 UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', os.path.join('static', 'gallery'))
@@ -926,6 +934,8 @@ app.config['GENERATED_FOLDER'] = GENERATED_FOLDER
 app.config['ALLOWED_EXTENSIONS'] = set(os.getenv('ALLOWED_EXTENSIONS', 'png,jpg,jpeg').split(','))
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your_secret_key')
 app.config['SESSION_TYPE'] = os.getenv('SESSION_TYPE', 'filesystem')
+app.config['SERVER_PORT'] = int(os.getenv('PORT', 5000))  # Add port configuration for backend
+app.config['FRONTEND_PORT'] = int(os.getenv('FRONTEND_PORT', 5173))  # Add frontend port configuration
 GALLERY_FOLDER = UPLOAD_FOLDER
 os.makedirs(GALLERY_FOLDER, exist_ok=True)
 Session(app)
@@ -981,7 +991,7 @@ def api_register():
     })
     return jsonify({"success": True}), 201
 
-@app.route("/api/", methods=["POST"])
+@app.route("/api/login", methods=["POST"])
 def api_login():
     data = request.get_json()
     username = data.get("username")
@@ -1422,4 +1432,8 @@ def index():
 if __name__ == "__main__":
     model_accuracy = int(os.getenv('MODEL_ACCURACY', 90))
     print("Model Accuracy:", model_accuracy)
-    app.run(debug=(os.getenv('DEBUG', 'True').lower() == 'true'))
+    # Use PORT environment variable which is set by Render
+    port = int(os.getenv('PORT', 5000))
+    # Note: When deployed on Render, debug should be False
+    debug_mode = os.getenv('DEBUG', 'False').lower() == 'true'
+    app.run(host='0.0.0.0', port=port, debug=debug_mode)

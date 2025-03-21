@@ -12,8 +12,9 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:5000', // your Flask backend port
+        target: 'https://text2image-backend.onrender.com', // updated backend URL
         changeOrigin: true,
+        secure: true, // ensure this is true if your backend uses HTTPS with a valid certificate
       }
     }
   },

@@ -19,7 +19,8 @@ import {
 } from "lucide-react";
 
 // Set this to your backend's URL
-const BACKEND_URL = "http://localhost:5000";
+// const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 function Gallery() {
   // Data & UI states
