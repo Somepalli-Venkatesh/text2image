@@ -16,8 +16,8 @@ function Profile() {
 
   // Fetch current user info including email from backend
   useEffect(() => {
-    fetch("/api/get-user")
-      .then((res) => res.json())
+    // Use the apiGet function which constructs the full URL from VITE_BACKEND_URL
+    apiGet("/get-user")
       .then((data) => {
         if (data.email) {
           setUserEmail(data.email);
