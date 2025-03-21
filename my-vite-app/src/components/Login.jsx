@@ -160,13 +160,14 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, Lock, ArrowRight } from "lucide-react";
+import { User, Lock, ArrowRight, Loader2 } from "lucide-react"; // Import Loader2 for spinner
 import { apiPost } from "../utils/api";
 import Toast from "./Toast";
 
 function Login() {
   const [form, setForm] = useState({ username: "", password: "" });
   const [toast, setToast] = useState(null);
+  const [loading, setLoading] = useState(false); // For spinner
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -175,15 +176,31 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Updated endpoint from "/" to "/login"
-    const res = await apiPost("/login", form);
-    if (res.error) {
-      setToast({ message: res.error, isError: true });
-    } else {
-      // Store username in both localStorage and sessionStorage
-      localStorage.setItem("username", res.username);
-      sessionStorage.setItem("username", res.username);
-      navigate("/home");
+    setLoading(true); // Start spinner
+    try {
+      const res = await apiPost("/login", form);
+      if (res.error) {
+        // Show toast error in top-right corner
+        setToast({ message: res.error, isError: true });
+      } else {
+        // Store username in both localStorage and sessionStorage
+        localStorage.setItem("username", res.username);
+        sessionStorage.setItem("username", res.username);
+        // Show success toast
+        setToast({ message: "Logged in successfully!", isError: false });
+        // Navigate after a brief delay so user can see the toast
+        setTimeout(() => {
+          navigate("/home");
+        }, 1000);
+      }
+    } catch (error) {
+      console.error(error);
+      setToast({
+        message: "An error occurred. Please try again.",
+        isError: true,
+      });
+    } finally {
+      setLoading(false); // Stop spinner
     }
   };
 
@@ -198,6 +215,13 @@ function Login() {
       <div className="absolute inset-0 bg-gradient-radial from-transparent via-black/50 to-black opacity-80" />
       <div className="floating-shapes absolute inset-0" />
       <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" />
+
+      {/* Toast Container (Top-Right) */}
+      <div className="fixed top-4 right-4 z-50">
+        <AnimatePresence>
+          {toast && <Toast {...toast} onClose={() => setToast(null)} />}
+        </AnimatePresence>
+      </div>
 
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }}
@@ -276,10 +300,18 @@ function Login() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
-              className="w-full py-3 px-4 bg-gradient-to-r from-purple-700 to-gray-700 hover:from-purple-800 hover:to-gray-800 rounded-lg text-white font-medium shadow-[0_0_10px_rgba(128,0,128,0.8)] flex items-center justify-center gap-2 group transition-all"
+              disabled={loading}
+              className="w-full py-3 px-4 bg-gradient-to-r from-purple-700 to-gray-700 hover:from-purple-800 hover:to-gray-800 rounded-lg text-white font-medium shadow-[0_0_10px_rgba(128,0,128,0.8)] flex items-center justify-center gap-2 group transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Sign In
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              {loading ? (
+                // Show loading spinner
+                <Loader2 className="animate-spin w-5 h-5" />
+              ) : (
+                <>
+                  Sign In
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </>
+              )}
             </motion.button>
           </motion.form>
 
@@ -308,10 +340,6 @@ function Login() {
           </motion.div>
         </div>
       </motion.div>
-
-      <AnimatePresence>
-        {toast && <Toast {...toast} onClose={() => setToast(null)} />}
-      </AnimatePresence>
     </motion.div>
   );
 }
