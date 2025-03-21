@@ -935,6 +935,7 @@ else:
     # Production settings: secure cookies for HTTPS cross-origin requests
     app.config['SESSION_COOKIE_SAMESITE'] = 'None'
     app.config['SESSION_COOKIE_SECURE'] = True
+    app.config['SESSION_COOKIE_DOMAIN'] = 'text2image-backend.onrender.com'
 
 # Other configuration from environment variables
 UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', os.path.join('static', 'gallery'))
