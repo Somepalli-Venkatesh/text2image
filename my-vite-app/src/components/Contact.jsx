@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import anime from "animejs";
 import { Mail, Send, CheckCircle, AlertCircle } from "lucide-react";
+import { apiPost } from "../utils/api";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -23,7 +24,7 @@ const Contact = () => {
       easing: "easeOutExpo",
     });
 
-    // Create particle animation
+    // Create particle animation (omitted for brevity)
     const createParticleCanvas = () => {
       const canvas = document.createElement("canvas");
       canvas.classList.add("particle-canvas");
@@ -50,7 +51,6 @@ const Contact = () => {
         constructor() {
           this.reset();
         }
-
         reset() {
           this.x = Math.random() * canvas.width;
           this.y = Math.random() * canvas.height;
@@ -59,11 +59,9 @@ const Contact = () => {
           this.color = `rgba(255, 255, 255, ${Math.random() * 0.5 + 0.1})`;
           this.direction = Math.random() * Math.PI * 2;
         }
-
         update() {
           this.x += Math.cos(this.direction) * this.speed;
           this.y += Math.sin(this.direction) * this.speed;
-
           if (
             this.x < 0 ||
             this.x > canvas.width ||
@@ -73,7 +71,6 @@ const Contact = () => {
             this.reset();
           }
         }
-
         draw() {
           ctx.beginPath();
           ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
@@ -117,12 +114,9 @@ const Contact = () => {
 
     setLoading(true);
     try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      if (response.ok) {
+      // Use apiPost so the full URL and credentials are included
+      const response = await apiPost("/contact", formData);
+      if (response.success) {
         setStatus("Your message has been sent successfully!");
         setFormData({
           name: "",
@@ -139,9 +133,13 @@ const Contact = () => {
           easing: "easeOutElastic(1, .5)",
         });
       } else {
-        setStatus("There was an error sending your message. Please try again.");
+        setStatus(
+          response.error ||
+            "There was an error sending your message. Please try again."
+        );
       }
     } catch (error) {
+      console.error(error);
       setStatus("There was an error sending your message. Please try again.");
     } finally {
       setLoading(false);
