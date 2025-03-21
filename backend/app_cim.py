@@ -969,6 +969,11 @@ def initialize_session():
     if 'history_list' not in session:
         session['history_list'] = []
 
+# --- Catch-all OPTIONS handler for /api/* routes ---
+@app.route("/api/<path:path>", methods=["OPTIONS"])
+def handle_options(path):
+    return '', 200
+
 # --------------------------
 # API Endpoints (JSON APIs)
 # --------------------------
@@ -1395,7 +1400,7 @@ Your VisioText team
     except Exception as e:
         print(f"Error sending contact email: {e}")
         return jsonify({"error": f"Failed to send message: {str(e)}"}), 500
-    
+
 @app.route("/api/get-user", methods=["GET"])
 def get_user():
     if 'logged_in' not in session:
