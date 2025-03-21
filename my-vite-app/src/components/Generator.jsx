@@ -40,6 +40,19 @@ const Generator = () => {
   const imageContainerRef = useRef(null);
   const [isEditing, setIsEditing] = useState(false);
 
+  // Add this at the beginning of the Generator component or in a useEffect
+  useEffect(() => {
+    // Check if user is logged in
+    const username = sessionStorage.getItem("username");
+    if (!username) {
+      setToast({
+        message: "Please log in to generate and upload images",
+        isError: true,
+      });
+      navigate("/login");
+    }
+  }, [navigate]);
+
   // Fetch generation history
   useEffect(() => {
     const fetchHistory = async () => {
@@ -240,11 +253,34 @@ const Generator = () => {
       const formData = new FormData();
       formData.append("image", blob, "generated_image.png");
       formData.append("description", prompt);
+
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
         credentials: "include",
       });
+
+      // Check if unauthorized
+      if (res.status === 401) {
+        setToast({
+          message: "You need to log in to upload images",
+          isError: true,
+        });
+        navigate("/login");
+        return;
+      }
+
+      // Check content type before parsing JSON
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        console.error("Received non-JSON response:", await res.text());
+        setToast({
+          message: "Server returned an unexpected response format",
+          isError: true,
+        });
+        return;
+      }
+
       const data = await res.json();
       if (data.success) {
         setToast({ message: "Image uploaded to gallery!", isError: false });
@@ -253,26 +289,8 @@ const Generator = () => {
         setToast({ message: data.error || "Upload failed", isError: true });
       }
     } catch (error) {
+      console.error("Upload error:", error);
       setToast({ message: "Upload failed. Please try again.", isError: true });
-    }
-  };
-
-  const deleteHistory = async (id) => {
-    try {
-      const response = await fetch(`/api/delete_history/${id}`, {
-        method: "DELETE",
-      });
-      if (response.ok) {
-        setHistory(history.filter((entry) => entry._id !== id));
-        setToast({
-          message: "History entry deleted successfully!",
-          isError: false,
-        });
-      } else {
-        setToast({ message: "Failed to delete history entry", isError: true });
-      }
-    } catch (error) {
-      setToast({ message: "Failed to delete history entry", isError: true });
     }
   };
 
