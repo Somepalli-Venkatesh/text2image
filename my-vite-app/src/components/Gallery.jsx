@@ -61,19 +61,28 @@ function Gallery() {
       fetch(`${BACKEND_URL}/api/get-updates`, { credentials: "include" })
         .then((res) => res.json())
         .then((data) => {
-          setGalleryItems((prevItems) =>
-            prevItems.map((item) => {
-              const update = data.find((u) => u.imageId === item.filename);
-              if (update) {
-                return {
-                  ...item,
-                  likeCount: update.likeCount,
-                  commentCount: update.commentCount,
-                };
-              }
-              return item;
-            })
-          );
+          if (data.error) {
+            console.error("Error fetching updates:", data.error);
+            // Optionally, show a toast or redirect to login
+            return;
+          }
+          if (Array.isArray(data)) {
+            setGalleryItems((prevItems) =>
+              prevItems.map((item) => {
+                const update = data.find((u) => u.imageId === item.filename);
+                if (update) {
+                  return {
+                    ...item,
+                    likeCount: update.likeCount,
+                    commentCount: update.commentCount,
+                  };
+                }
+                return item;
+              })
+            );
+          } else {
+            console.error("Unexpected data format:", data);
+          }
         })
         .catch((err) => console.error("Error fetching updates:", err));
     }, 5000);
