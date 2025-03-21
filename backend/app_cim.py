@@ -926,7 +926,17 @@ CORS(app,
      allow_headers=["Content-Type", "Authorization"],
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 
-# Configuration from environment variables
+# Configure session cookies based on DEBUG setting.
+if os.getenv('DEBUG', 'False').lower() == 'true':
+    # Development settings: non-secure, less strict same-site
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+    app.config['SESSION_COOKIE_SECURE'] = False
+else:
+    # Production settings: secure cookies for HTTPS cross-origin requests
+    app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+    app.config['SESSION_COOKIE_SECURE'] = True
+
+# Other configuration from environment variables
 UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', os.path.join('static', 'gallery'))
 GENERATED_FOLDER = os.getenv('GENERATED_FOLDER', os.path.join('static', 'generated'))
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -936,6 +946,7 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your_secret_key')
 app.config['SESSION_TYPE'] = os.getenv('SESSION_TYPE', 'filesystem')
 app.config['SERVER_PORT'] = int(os.getenv('PORT', 5000))  # backend port
 app.config['FRONTEND_PORT'] = int(os.getenv('FRONTEND_PORT', 5173))  # frontend port
+
 GALLERY_FOLDER = UPLOAD_FOLDER
 os.makedirs(GALLERY_FOLDER, exist_ok=True)
 Session(app)
@@ -1033,12 +1044,7 @@ def api_forgot_password():
     otp = totp.now()
     users_collection.update_one(
         {"email": email},
-        {
-            "$set": {
-                "reset_otp": otp,
-                "otp_expiry": datetime.now() + timedelta(minutes=10)
-            }
-        }
+        {"$set": {"reset_otp": otp, "otp_expiry": datetime.now() + timedelta(minutes=10)}}
     )
     if send_reset_email(email, otp):
         return jsonify({"success": True, "message": "OTP has been sent to your email."})
@@ -1051,11 +1057,7 @@ def api_reset_password():
     email = data.get("email")
     otp = data.get("otp")
     new_password = data.get("new_password")
-    user = users_collection.find_one({
-        "email": email,
-        "reset_otp": otp,
-        "otp_expiry": {"$gt": datetime.now()}
-    })
+    user = users_collection.find_one({"email": email, "reset_otp": otp, "otp_expiry": {"$gt": datetime.now()}})
     if not user:
         return jsonify({"error": "Invalid or expired OTP."}), 400
     if len(new_password) < 8:
@@ -1063,10 +1065,7 @@ def api_reset_password():
     hashed_password = generate_password_hash(new_password, method='pbkdf2:sha256')
     users_collection.update_one(
         {"email": email},
-        {
-            "$set": {"password": hashed_password},
-            "$unset": {"reset_otp": "", "otp_expiry": ""}
-        }
+        {"$set": {"password": hashed_password}, "$unset": {"reset_otp": "", "otp_expiry": ""}}
     )
     return jsonify({"success": True, "message": "Password reset successfully!"})
 
@@ -1132,6 +1131,7 @@ def generate_image():
         imageUrl = "data:image/png;base64," + base64_image
         return jsonify({"success": True, "imageUrl": imageUrl})
     else:
+        print("Stability API error:", response.text)
         return jsonify({"error": "Failed to generate image"}), 500
 
 @app.route("/api/upload", methods=["POST"])
@@ -1155,7 +1155,6 @@ def upload():
 
     try:
         file.save(save_path)
-        # Save image path with the /static prefix so it can be accessed from the frontend
         image_path = f"/static/gallery/{username}/{filename}"
         history_collection.insert_one({
             "username": username,
@@ -1163,11 +1162,7 @@ def upload():
             "image_path": image_path,
             "timestamp": datetime.now()
         })
-        return jsonify({
-            'success': True,
-            'message': 'Image uploaded successfully!',
-            'file': image_path
-        })
+        return jsonify({'success': True, 'message': 'Image uploaded successfully!', 'file': image_path})
     except Exception as e:
         return jsonify({'error': f'Failed to save image: {str(e)}'}), 500
 
@@ -1183,7 +1178,6 @@ def gallery():
         if os.path.isdir(user_gallery_path):
             for f in os.listdir(user_gallery_path):
                 if os.path.isfile(os.path.join(user_gallery_path, f)) and f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
-                    # Include the /static prefix for proper URL access
                     image_path = f"/static/gallery/{username}/{f}"
                     history_doc = history_collection.find_one({"username": username, "image_path": image_path})
                     if history_doc:
@@ -1323,7 +1317,6 @@ def get_updates():
 def delete_image(imagePath):
     if 'logged_in' not in session:
         return jsonify({'error': 'Unauthorized access'}), 401
-    # Remove leading '/static/gallery/' if present
     if imagePath.startswith("/static/gallery/"):
         imagePath = imagePath[len("/static/gallery/"):]
     elif imagePath.startswith("static/gallery/"):
@@ -1361,24 +1354,18 @@ def delete_history(history_id):
 @app.route("/api/contact", methods=["POST"])
 def contact():
     data = request.get_json()
-    print("Received contact data:", data)  # Debug log
+    print("Received contact data:", data)
     name = data.get("name")
     email = data.get("email")
     subject = data.get("subject", "Contact Form Submission")
     message = data.get("message")
-
-    # Validate required fields
     if not name or not email or not message:
         return jsonify({"error": "Name, email, and message are required."}), 400
-
     try:
-        # Create the email message
         msg = MIMEMultipart()
-        msg['From'] = EMAIL_USER  # Sender's email (your email)
-        msg['To'] = EMAIL_USER    # Recipient's email (could be a dedicated support address)
+        msg['From'] = EMAIL_USER
+        msg['To'] = EMAIL_USER
         msg['Subject'] = subject
-
-        # Construct the email body
         body = f"""
 Hello,
 
@@ -1394,13 +1381,10 @@ Best regards,
 Your VisioText team
 """
         msg.attach(MIMEText(body, 'plain'))
-
-        # Send the email
         with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
             server.starttls()
             server.login(EMAIL_USER, EMAIL_PASSWORD)
             server.send_message(msg)
-
         return jsonify({"success": True, "message": "Your message has been sent."}), 200
     except Exception as e:
         print(f"Error sending contact email: {e}")
@@ -1442,8 +1426,6 @@ def index():
 if __name__ == "__main__":
     model_accuracy = int(os.getenv('MODEL_ACCURACY', 90))
     print("Model Accuracy:", model_accuracy)
-    # Use PORT environment variable which is set by Render
     port = int(os.getenv('PORT', 5000))
-    # Note: When deployed on Render, debug should be False
     debug_mode = os.getenv('DEBUG', 'False').lower() == 'true'
     app.run(host='0.0.0.0', port=port, debug=debug_mode)
