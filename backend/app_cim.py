@@ -934,8 +934,8 @@ app.config['GENERATED_FOLDER'] = GENERATED_FOLDER
 app.config['ALLOWED_EXTENSIONS'] = set(os.getenv('ALLOWED_EXTENSIONS', 'png,jpg,jpeg').split(','))
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your_secret_key')
 app.config['SESSION_TYPE'] = os.getenv('SESSION_TYPE', 'filesystem')
-app.config['SERVER_PORT'] = int(os.getenv('PORT', 5000))  # Add port configuration for backend
-app.config['FRONTEND_PORT'] = int(os.getenv('FRONTEND_PORT', 5173))  # Add frontend port configuration
+app.config['SERVER_PORT'] = int(os.getenv('PORT', 5000))  # backend port
+app.config['FRONTEND_PORT'] = int(os.getenv('FRONTEND_PORT', 5173))  # frontend port
 GALLERY_FOLDER = UPLOAD_FOLDER
 os.makedirs(GALLERY_FOLDER, exist_ok=True)
 Session(app)
@@ -969,7 +969,12 @@ def initialize_session():
     if 'history_list' not in session:
         session['history_list'] = []
 
-# --- Catch-all OPTIONS handler for /api/* routes ---
+# --- Explicit OPTIONS handler for "/api/" ---
+@app.route("/api/", methods=["OPTIONS"])
+def handle_api_root_options():
+    return '', 200
+
+# --- Catch-all OPTIONS handler for any "/api/*" route ---
 @app.route("/api/<path:path>", methods=["OPTIONS"])
 def handle_options(path):
     return '', 200
@@ -1400,7 +1405,7 @@ Your VisioText team
     except Exception as e:
         print(f"Error sending contact email: {e}")
         return jsonify({"error": f"Failed to send message: {str(e)}"}), 500
-
+    
 @app.route("/api/get-user", methods=["GET"])
 def get_user():
     if 'logged_in' not in session:
