@@ -18,10 +18,12 @@ import {
   Star,
 } from "lucide-react";
 
+// Set this to your backend's URL
+// const BACKEND_URL = "http://localhost:5000";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-const Gallery = () => {
-  // State declarations
+function Gallery() {
+  // Data & UI states
   const [galleryItems, setGalleryItems] = useState([]);
   const [toast, setToast] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -42,7 +44,8 @@ const Gallery = () => {
 
   const lightboxRef = useRef(null);
 
-  // Fetch gallery items on mount
+  // -------------------------------
+  // Fetch gallery items on mount.
   useEffect(() => {
     apiGet("/gallery").then((data) => {
       if (data.gallery_items) {
@@ -51,7 +54,8 @@ const Gallery = () => {
     });
   }, []);
 
-  // Poll for updates every 5 seconds
+  // -------------------------------
+  // Poll for updates (likes/comments) every 5 seconds.
   useEffect(() => {
     const intervalId = setInterval(() => {
       fetch(`${BACKEND_URL}/api/get-updates`, { credentials: "include" })
@@ -59,6 +63,7 @@ const Gallery = () => {
         .then((data) => {
           if (data.error) {
             console.error("Error fetching updates:", data.error);
+            // Optionally, show a toast or redirect to login
             return;
           }
           if (Array.isArray(data)) {
@@ -84,7 +89,8 @@ const Gallery = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-  // Sparkles Background Effect
+  // -------------------------------
+  // Sparkles Background Effect (subtle, without glow)
   useEffect(() => {
     const container = document.querySelector(".sparkles-animation");
     if (!container) return;
@@ -100,6 +106,7 @@ const Gallery = () => {
 
     const ctx = canvas.getContext("2d");
     let particles = [];
+
     const resizeCanvas = () => {
       canvas.width = container.offsetWidth;
       canvas.height = container.offsetHeight;
@@ -161,7 +168,8 @@ const Gallery = () => {
     return () => window.removeEventListener("resize", resizeCanvas);
   }, []);
 
-  // Delete image handler
+  // -------------------------------
+  // Delete image handler.
   const handleDelete = async (imagePath) => {
     if (window.confirm("Are you sure you want to delete this image?")) {
       const res = await apiDelete(
@@ -169,8 +177,10 @@ const Gallery = () => {
       );
       if (res.success) {
         setToast({ message: "Image deleted successfully.", isError: false });
-        setGalleryItems((prev) =>
-          prev.filter((item) => item.filename !== imagePath.split("/")[1])
+        setGalleryItems(
+          galleryItems.filter(
+            (item) => item.filename !== imagePath.split("/")[1]
+          )
         );
       } else {
         setToast({ message: res.error, isError: true });
@@ -178,7 +188,8 @@ const Gallery = () => {
     }
   };
 
-  // Lightbox functions
+  // -------------------------------
+  // Lightbox functions.
   const openLightbox = (index) => {
     setLightbox({ isOpen: true, currentIndex: index });
   };
@@ -199,7 +210,7 @@ const Gallery = () => {
     }));
   };
 
-  // Fullscreen toggle for lightbox
+  // Fullscreen toggle for lightbox.
   const toggleFullScreen = () => {
     if (lightboxRef.current) {
       if (document.fullscreenElement) {
@@ -212,7 +223,8 @@ const Gallery = () => {
     }
   };
 
-  // Sorting & filtering gallery items
+  // -------------------------------
+  // Sorting & Filtering
   const sortedItems = [...galleryItems].sort((a, b) => {
     if (sortOption === "newest") {
       return new Date(b.timestamp) - new Date(a.timestamp);
@@ -235,7 +247,8 @@ const Gallery = () => {
     );
   }
 
-  // Keyboard controls for lightbox
+  // -------------------------------
+  // Keyboard controls for lightbox.
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (!lightbox.isOpen) return;
@@ -247,7 +260,8 @@ const Gallery = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [lightbox.isOpen, filteredItems]);
 
-  // Download, share, and like functions
+  // -------------------------------
+  // Download, Share, and Like functions.
   const downloadImage = async (imgUrl) => {
     try {
       const response = await fetch(imgUrl, { mode: "cors" });
@@ -309,7 +323,8 @@ const Gallery = () => {
     }
   };
 
-  // Comments functions
+  // -------------------------------
+  // Comments Functions.
   const loadComments = async (imageId) => {
     try {
       const res = await fetch(`${BACKEND_URL}/api/get-comments/${imageId}`, {
@@ -350,7 +365,8 @@ const Gallery = () => {
     if (!openCommentOverlays[imageId]) loadComments(imageId);
   };
 
-  // Toggle favorite
+  // -------------------------------
+  // Toggle favorite using a Star icon.
   const toggleFavorite = (filename) => {
     setFavorites((prev) => {
       let updated = prev.includes(filename)
@@ -361,41 +377,17 @@ const Gallery = () => {
     });
   };
 
-  // Extract unique tags
+  // -------------------------------
+  // Extract unique tags from gallery items.
   const allTags = Array.from(
     new Set(galleryItems.flatMap((item) => item.tags || []))
   );
 
-  // Theme toggle handler
+  // -------------------------------
+  // Theme toggle handler.
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
-
-  // If no images after filtering, show a centered message
-  const noImagesMessage = (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="flex flex-col items-center justify-center h-full py-16"
-    >
-      <ImageIcon className="w-16 h-16 mb-4 text-white/40" />
-      <h2 className="text-2xl font-bold text-white/90 mb-2">
-        Your Gallery is Empty
-      </h2>
-      <p className="text-white/60 mb-6">
-        Start creating amazing images with our AI generator!
-      </p>
-      <motion.a
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        href="/home"
-        className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg text-white font-medium"
-      >
-        <Plus className="w-5 h-5" />
-        Create Now
-      </motion.a>
-    </motion.div>
-  );
 
   return (
     <div
@@ -446,6 +438,7 @@ const Gallery = () => {
               <option value="mostLikes">Most Likes</option>
               <option value="leastLikes">Least Likes</option>
             </select>
+            {/* Tags Filter */}
             <div className="flex items-center gap-2">
               {allTags.map((tag) => (
                 <motion.button
@@ -480,201 +473,230 @@ const Gallery = () => {
           My Image Gallery
         </motion.h1>
 
-        {/* Gallery Grid */}
+        {/* Gallery Grid using a standard grid layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-7xl mx-auto">
-          {filteredItems.length > 0
-            ? filteredItems.map((item, index) => {
-                const imageUrl = `${BACKEND_URL}/static/gallery/${item.username}/${item.filename}`;
-                return (
-                  <motion.div
-                    key={item.filename}
-                    layout
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="relative bg-black/30 rounded-2xl overflow-hidden border border-white/10 backdrop-blur-lg hover:border-purple-500 transition-all duration-300"
+          {filteredItems.length > 0 ? (
+            filteredItems.map((item, index) => {
+              const imageUrl = `${BACKEND_URL}/static/gallery/${item.username}/${item.filename}`;
+              return (
+                <motion.div
+                  key={item.filename}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="relative bg-black/30 rounded-2xl overflow-hidden border border-white/10 backdrop-blur-lg hover:border-purple-500 transition-all duration-300"
+                >
+                  {/* Image Container without glowing skeleton */}
+                  <div
+                    className="relative cursor-zoom-in"
+                    onClick={() => openLightbox(index)}
                   >
-                    <div
-                      className="relative cursor-zoom-in"
-                      onClick={() => openLightbox(index)}
-                    >
-                      <img
-                        src={imageUrl}
-                        alt={item.filename}
-                        loading="lazy"
-                        className="w-full h-full object-cover transition-transform duration-500"
-                      />
-                      <div className="absolute top-4 right-4 flex gap-2 opacity-0 hover:opacity-100 transition-all duration-300">
+                    <img
+                      src={imageUrl}
+                      alt={item.filename}
+                      loading="lazy"
+                      className="w-full h-full object-cover transition-transform duration-500"
+                    />
+                    {/* Top Overlay Actions */}
+                    <div className="absolute top-4 right-4 flex gap-2 opacity-0 hover:opacity-100 transition-all duration-300">
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          downloadImage(imageUrl);
+                        }}
+                        className="p-2 rounded-full bg-black/40 backdrop-blur-md hover:bg-black/60 text-white"
+                        aria-label="Download image"
+                      >
+                        <Download className="w-5 h-5" />
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleDelete(`${item.username}/${item.filename}`);
+                        }}
+                        className="p-2 rounded-full bg-black/40 backdrop-blur-md hover:bg-red-600/60 text-white"
+                        aria-label="Delete image"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          shareImage(imageUrl);
+                        }}
+                        className="p-2 rounded-full bg-black/40 backdrop-blur-md hover:bg-black/60 text-white"
+                        aria-label="Share image"
+                      >
+                        <Share2 className="w-5 h-5" />
+                      </motion.button>
+                    </div>
+                  </div>
+
+                  {/* Card Info Section */}
+                  <div className="p-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <div className="flex items-center gap-3">
                         <motion.button
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            downloadImage(imageUrl);
-                          }}
-                          className="p-2 rounded-full bg-black/40 backdrop-blur-md hover:bg-black/60 text-white"
-                          aria-label="Download image"
+                          onClick={() => updateLike(item.filename)}
+                          className="flex items-center gap-1 text-white hover:text-pink-400"
+                          aria-label="Like image"
                         >
-                          <Download className="w-5 h-5" />
+                          <Heart className="w-5 h-5" />
+                          <span>{item.likeCount || 0}</span>
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => toggleCommentOverlay(item.filename)}
+                          className="flex items-center gap-1 text-white hover:text-blue-400"
+                          aria-label="View comments"
+                        >
+                          <MessageCircle className="w-5 h-5" />
+                          <span>{item.commentCount || 0}</span>
                         </motion.button>
                         <motion.button
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
                           onClick={(e) => {
-                            e.preventDefault();
                             e.stopPropagation();
-                            handleDelete(`${item.username}/${item.filename}`);
+                            toggleFavorite(item.filename);
                           }}
-                          className="p-2 rounded-full bg-black/40 backdrop-blur-md hover:bg-red-600/60 text-white"
-                          aria-label="Delete image"
+                          className="flex items-center gap-1 text-white"
+                          aria-label="Mark as favorite"
                         >
-                          <Trash2 className="w-5 h-5" />
-                        </motion.button>
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            shareImage(imageUrl);
-                          }}
-                          className="p-2 rounded-full bg-black/40 backdrop-blur-md hover:bg-black/60 text-white"
-                          aria-label="Share image"
-                        >
-                          <Share2 className="w-5 h-5" />
+                          <Star
+                            className={`w-5 h-5 ${
+                              favorites.includes(item.filename)
+                                ? "fill-yellow-500"
+                                : "stroke-current"
+                            }`}
+                          />
                         </motion.button>
                       </div>
+                      <div className="text-xs text-white/60">
+                        by {item.username}
+                      </div>
                     </div>
-                    <div className="p-4">
-                      <div className="flex justify-between items-center mb-2">
-                        <div className="flex items-center gap-3">
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            onClick={() => updateLike(item.filename)}
-                            className="flex items-center gap-1 text-white hover:text-pink-400"
-                            aria-label="Like image"
-                          >
-                            <Heart className="w-5 h-5" />
-                            <span>{item.likeCount || 0}</span>
-                          </motion.button>
+                    <p className="text-sm text-white/80 line-clamp-2">
+                      {item.description}
+                    </p>
+                    {item.timestamp && (
+                      <p className="text-xs text-white/40 mt-1">
+                        {item.timestamp}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Comment Overlay */}
+                  <AnimatePresence>
+                    {openCommentOverlays[item.filename] && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 100 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 100 }}
+                        className="absolute inset-0 bg-black/95 backdrop-blur-xl text-white p-4 flex flex-col"
+                      >
+                        <div className="flex justify-between items-center mb-3">
+                          <h3 className="text-lg font-semibold">Comments</h3>
                           <motion.button
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
                             onClick={() => toggleCommentOverlay(item.filename)}
-                            className="flex items-center gap-1 text-white hover:text-blue-400"
-                            aria-label="View comments"
+                            aria-label="Close comments"
                           >
-                            <MessageCircle className="w-5 h-5" />
-                            <span>{item.commentCount || 0}</span>
+                            <X className="w-6 h-6" />
                           </motion.button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto space-y-3 mb-3">
+                          {comments[item.filename] &&
+                          comments[item.filename].length > 0 ? (
+                            comments[item.filename].map((c, idx) => (
+                              <div
+                                key={idx}
+                                className="bg-black/40 rounded p-2"
+                              >
+                                <span className="font-medium text-purple-400">
+                                  {c.username}
+                                </span>
+                                <p className="text-white/80 mt-1">
+                                  {c.comment}
+                                </p>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-white/40 text-center italic">
+                              No comments yet.
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            placeholder="Add a comment..."
+                            value={newComment[item.filename] || ""}
+                            onChange={(e) =>
+                              setNewComment((prev) => ({
+                                ...prev,
+                                [item.filename]: e.target.value,
+                              }))
+                            }
+                            className="flex-1 px-3 py-2 rounded bg-black/50 border border-white/10 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 text-white placeholder-white/40"
+                            aria-label="Add a comment"
+                          />
                           <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleFavorite(item.filename);
-                            }}
-                            className="flex items-center gap-1 text-white"
-                            aria-label="Mark as favorite"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => submitComment(item.filename)}
+                            className="px-3 py-2 bg-purple-500 hover:bg-purple-600 rounded flex items-center gap-1 text-white"
+                            aria-label="Send comment"
                           >
-                            <Star
-                              className={`w-5 h-5 ${
-                                favorites.includes(item.filename)
-                                  ? "fill-yellow-500"
-                                  : "stroke-current"
-                              }`}
-                            />
+                            <Send className="w-4 h-4" />
+                            <span>Send</span>
                           </motion.button>
                         </div>
-                        <div className="text-xs text-white/60">
-                          by {item.username}
-                        </div>
-                      </div>
-                      <p className="text-sm text-white/80 line-clamp-2">
-                        {item.description}
-                      </p>
-                      {item.timestamp && (
-                        <p className="text-xs text-white/40 mt-1">
-                          {item.timestamp}
-                        </p>
-                      )}
-                    </div>
-                    <AnimatePresence>
-                      {openCommentOverlays[item.filename] && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 100 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 100 }}
-                          className="absolute inset-0 bg-black/95 backdrop-blur-xl text-white p-4 flex flex-col"
-                        >
-                          <div className="flex justify-between items-center mb-3">
-                            <h3 className="text-lg font-semibold">Comments</h3>
-                            <motion.button
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              onClick={() =>
-                                toggleCommentOverlay(item.filename)
-                              }
-                              aria-label="Close comments"
-                            >
-                              <X className="w-6 h-6" />
-                            </motion.button>
-                          </div>
-                          <div className="flex-1 overflow-y-auto space-y-3 mb-3">
-                            {comments[item.filename] &&
-                            comments[item.filename].length > 0 ? (
-                              comments[item.filename].map((c, idx) => (
-                                <div
-                                  key={idx}
-                                  className="bg-black/40 rounded p-2"
-                                >
-                                  <span className="font-medium text-purple-400">
-                                    {c.username}
-                                  </span>
-                                  <p className="text-white/80 mt-1">
-                                    {c.comment}
-                                  </p>
-                                </div>
-                              ))
-                            ) : (
-                              <p className="text-white/40 text-center italic">
-                                No comments yet.
-                              </p>
-                            )}
-                          </div>
-                          <div className="flex gap-2">
-                            <input
-                              type="text"
-                              placeholder="Add a comment..."
-                              value={newComment[item.filename] || ""}
-                              onChange={(e) =>
-                                setNewComment((prev) => ({
-                                  ...prev,
-                                  [item.filename]: e.target.value,
-                                }))
-                              }
-                              className="flex-1 px-3 py-2 rounded bg-black/50 border border-white/10 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 text-white placeholder-white/40"
-                              aria-label="Add a comment"
-                            />
-                            <motion.button
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              onClick={() => submitComment(item.filename)}
-                              className="px-3 py-2 bg-purple-500 hover:bg-purple-600 rounded flex items-center gap-1 text-white"
-                              aria-label="Send comment"
-                            >
-                              <Send className="w-4 h-4" />
-                              <span>Send</span>
-                            </motion.button>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                );
-              })
-            : noImagesMessage}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              );
+            })
+          ) : (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="py-16 text-center"
+            >
+              <div className="bg-black/30 rounded-2xl p-8 backdrop-blur-3xl border border-white/10 max-w-md mx-auto">
+                <ImageIcon className="w-16 h-16 mx-auto mb-4 text-white/40" />
+                <h2 className="text-2xl font-bold text-white/90 mb-2">
+                  Your Gallery is Empty
+                </h2>
+                <p className="text-white/60 mb-6">
+                  Start creating amazing images with our AI generator!
+                </p>
+                <motion.a
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  href="/home"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg text-white font-medium"
+                >
+                  <Plus className="w-5 h-5" />
+                  Create Now
+                </motion.a>
+              </div>
+            </motion.div>
+          )}
         </div>
 
         {/* Enhanced Lightbox Modal */}
@@ -724,6 +746,7 @@ const Gallery = () => {
                 >
                   <ChevronRight className="w-8 h-8" />
                 </motion.button>
+                {/* Fullscreen and Edit buttons */}
                 <div className="absolute bottom-4 right-4 flex gap-2">
                   <motion.button
                     whileHover={{ scale: 1.1 }}
@@ -781,6 +804,6 @@ const Gallery = () => {
       </div>
     </div>
   );
-};
+}
 
 export default Gallery;
