@@ -641,11 +641,9 @@ import {
   Wand2,
   Sparkles,
   Image as ImageIcon,
+  Loader2,
 } from "lucide-react";
 
-// -------------------
-// Helper: Download Image
-// -------------------
 const downloadImage = (dataUrl) => {
   const link = document.createElement("a");
   link.href = dataUrl;
@@ -658,6 +656,7 @@ const Generator = () => {
   const [generatedImage, setGeneratedImage] = useState(null);
   const [toast, setToast] = useState(null);
   const [history, setHistory] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const navigate = useNavigate();
@@ -680,6 +679,7 @@ const Generator = () => {
   // Fetch generation history using the API utility function
   useEffect(() => {
     const fetchHistory = async () => {
+      setHistoryLoading(true);
       try {
         const data = await apiGet("/history");
         if (data.success) {
@@ -687,12 +687,14 @@ const Generator = () => {
         }
       } catch (error) {
         console.error("Error fetching history:", error);
+      } finally {
+        setHistoryLoading(false);
       }
     };
     fetchHistory();
   }, []);
 
-  // Background Animations
+  // Background Animations (omitted for brevity; remains unchanged)
   useEffect(() => {
     const createParticleCanvas = (containerClass) => {
       const container = document.querySelector(containerClass);
@@ -872,7 +874,6 @@ const Generator = () => {
       const res = await apiDelete(`/delete_history/${historyId}`);
       if (res.success) {
         setToast({ message: res.message, isError: false });
-        // Remove the deleted entry from the history state
         setHistory((prevHistory) =>
           prevHistory.filter((entry) => entry._id !== historyId)
         );
@@ -896,9 +897,7 @@ const Generator = () => {
       formData.append("image", blob, "generated_image.png");
       formData.append("description", prompt);
 
-      // Use your API utility function here
-      const res = await apiPost("/upload", formData, true); // Note: using "/upload" as the endpoint
-      // Check if unauthorized
+      const res = await apiPost("/upload", formData, true);
       if (res.error && res.error === "Unauthorized access") {
         setToast({
           message: "You need to log in to upload images",
@@ -908,7 +907,6 @@ const Generator = () => {
         return;
       }
 
-      // Since apiPost returns JSON, we can process it here
       if (res.success) {
         setToast({ message: "Image uploaded to gallery!", isError: false });
         navigate("/gallery");
@@ -949,15 +947,13 @@ const Generator = () => {
   };
 
   // -------------------------
-  // Render: Switch between Generator view and Changes view
+  // Render
   // -------------------------
   if (isEditing) {
-    // Changes view with the ImageEditor and a back arrow
     return (
       <div className="relative min-h-screen bg-gradient-to-br from-black via-blue-900 to-gray-800 overflow-hidden">
         <div className="background-animation absolute inset-0 opacity-30"></div>
         <div className="floating-shapes absolute inset-0"></div>
-        {/* Back Arrow */}
         <div className="absolute top-4 left-4 z-20">
           <motion.button
             onClick={() => setIsEditing(false)}
@@ -994,7 +990,6 @@ const Generator = () => {
       </div>
     );
   } else {
-    // Generator view
     return (
       <div className="relative min-h-screen bg-gradient-to-br from-black via-blue-900 to-gray-800 overflow-hidden">
         <div className="background-animation absolute inset-0 opacity-30"></div>
@@ -1018,12 +1013,20 @@ const Generator = () => {
                   onClick={() => setSidebarOpen(false)}
                   className="p-2 rounded-full hover:bg-white/10"
                 >
-                  {/* <X className="w-5 h-5 text-white/70" /> */}
+                  {/* Icon here if needed */}
                 </motion.button>
               </div>
               <motion.ul layout className="space-y-3">
                 <AnimatePresence>
-                  {history.length > 0 ? (
+                  {historyLoading ? (
+                    <motion.li
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="flex justify-center items-center p-8"
+                    >
+                      <Loader2 className="animate-spin w-10 h-10 text-yellow-400" />
+                    </motion.li>
+                  ) : history.length > 0 ? (
                     history.map((entry) => (
                       <motion.li
                         key={entry._id}
