@@ -401,11 +401,10 @@ const AboutSection = () => {
             <div className="about-animation glass-morphism p-8 rounded-2xl backdrop-blur-lg bg-white/5 border border-white/10 mb-16">
               <h2 className="text-2xl font-semibold mb-4">Project Overview</h2>
               <p className="text-gray-300 leading-relaxed mb-6">
-                Our project aims to revolutionize how users interact with
-                digital content by combining cutting-edge technology with
-                intuitive design principles. We've developed a platform that not
-                only meets current market needs but anticipates future trends in
-                digital engagement.
+                In this project, we aim to enhance the performance of DC-GANs in
+                text-to-image synthesis by addressing the limitations of
+                previous models, such as improving image resolution and reducing
+                artifacts.
               </p>
 
               <h3 className="text-xl font-semibold mb-3 mt-8">Project Goals</h3>
