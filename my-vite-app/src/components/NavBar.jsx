@@ -17,6 +17,7 @@ import {
   Moon,
   Sun,
   BarChart2, // Imported gauge icon
+  Info, // Newly imported About icon
 } from "lucide-react";
 import logo from "../assets/download_logo2.png";
 
@@ -107,6 +108,14 @@ function NavBar() {
               >
                 <Mail size={18} />
                 <span>Contact</span>
+              </Link>
+              {/* New About Link */}
+              <Link
+                to="/about"
+                className="nav-link group flex items-center gap-2 text-gray-300 transition-all ease-in-out duration-300 hover:text-white hover:border-b-2 hover:border-amber-500"
+              >
+                <Info size={18} />
+                <span>About</span>
               </Link>
             </div>
 
@@ -330,6 +339,15 @@ function NavBar() {
           >
             <Mail size={18} />
             <span>Contact</span>
+          </Link>
+          {/* New Mobile About Link */}
+          <Link
+            to="/about"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center gap-2 text-gray-300 transition-all ease-in-out duration-300 hover:text-white hover:border-b-2 hover:border-amber-500"
+          >
+            <Info size={18} />
+            <span>About</span>
           </Link>
           {/* Mobile Accuracy Button */}
           <Link

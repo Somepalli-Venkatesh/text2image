@@ -14,6 +14,7 @@ import Contact from "./components/Contact.jsx";
 import Settings from "./components/Settings.jsx";
 import Profile from "./components/Profile.jsx";
 import ImageEditor from "./components/ImageEditor.jsx";
+import About from "./components/About.jsx";
 import AccuracyChart from "./components/AccuracyChart.jsx";
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/editor" element={<ImageEditor />} />
+        <Route path="/about" element={<About />} />
         <Route path="/accuracy" element={<AccuracyChart />} />
       </Routes>
     </div>
