@@ -6,7 +6,7 @@ const Home = () => {
   const navigate = useNavigate();
 
   const navToGenerator = () => {
-    navigate("/generator");
+    navigate("/");
   };
   useEffect(() => {
     // Create particle canvas for both main and footer
