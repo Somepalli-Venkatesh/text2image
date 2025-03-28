@@ -246,12 +246,14 @@ const Home = () => {
         </div>
       </main>
 
-      {/* Login Modal */}
+      {/* Login Modal with Black, Grey, Blue Theme */}
       {showLoginModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg p-8 max-w-sm w-full">
-            <h2 className="text-2xl font-bold mb-4">Login</h2>
-            <p className="mb-4">Please log in to access the generator.</p>
+          <div className="bg-gray-900 rounded-lg p-8 max-w-sm w-full shadow-lg">
+            <h2 className="text-2xl font-bold mb-4 text-white">Login</h2>
+            <p className="mb-4 text-gray-300">
+              Please log in to access the generator.
+            </p>
             {/* Replace with your actual login form */}
             <button
               onClick={handleLogin}
@@ -261,7 +263,7 @@ const Home = () => {
             </button>
             <button
               onClick={() => setShowLoginModal(false)}
-              className="w-full mt-2 border border-gray-300 py-2 rounded hover:bg-gray-100 transition-colors"
+              className="w-full mt-2 border border-gray-600 text-gray-300 py-2 rounded hover:bg-gray-800 transition-colors"
             >
               Cancel
             </button>
