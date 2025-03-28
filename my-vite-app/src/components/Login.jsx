@@ -190,7 +190,7 @@ function Login() {
         setToast({ message: "Logged in successfully!", isError: false });
         // Navigate after a brief delay so user can see the toast
         setTimeout(() => {
-          navigate("/home");
+          navigate("/");
         }, 1000);
       }
     } catch (error) {

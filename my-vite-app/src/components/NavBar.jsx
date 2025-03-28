@@ -44,7 +44,7 @@ function NavBar() {
 
   // Hide the navbar on these pages
   if (
-    location.pathname === "/" ||
+    location.pathname === "/login" ||
     location.pathname === "/register" ||
     location.pathname === "/reset-password" ||
     location.pathname === "/forgot-password"
@@ -55,7 +55,7 @@ function NavBar() {
   const handleLogout = async () => {
     await fetch("/api/logout", { method: "POST", credentials: "include" });
     localStorage.removeItem("username");
-    navigate("/");
+    navigate("/login");
   };
 
   return (
@@ -65,7 +65,7 @@ function NavBar() {
           <div className="flex justify-between items-center h-full">
             {/* Logo Section */}
             <Link
-              to="/"
+              to="/login"
               className="flex items-center gap-2 text-2xl font-bold bg-gradient-to-r from-black to-amber-600 bg-clip-text text-transparent transition-all ease-in-out duration-300 hover:shadow-md"
             >
               <img src={logo} alt="Logo" className="h-10 w-auto" />
@@ -75,7 +75,7 @@ function NavBar() {
             {/* Desktop Navigation Links */}
             <div className="hidden md:flex items-center gap-6">
               <Link
-                to="/home"
+                to="/"
                 className="nav-link group flex items-center gap-2 text-gray-300 transition-all ease-in-out duration-300 hover:text-white hover:border-b-2 hover:border-amber-500"
               >
                 <Home size={18} />
@@ -204,7 +204,7 @@ function NavBar() {
               ) : (
                 <>
                   <Link
-                    to="/"
+                    to="/login"
                     className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 transition-all ease-in-out duration-300 hover:bg-white/10 hover:text-white text-gray-300"
                   >
                     <LogIn size={16} />
@@ -266,7 +266,7 @@ function NavBar() {
               ) : (
                 <>
                   <Link
-                    to="/"
+                    to="/login"
                     className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 transition-all ease-in-out duration-300 hover:bg-white/10 hover:text-white text-gray-300"
                   >
                     <LogIn size={16} />
@@ -301,7 +301,7 @@ function NavBar() {
       {mobileMenuOpen && (
         <div className="md:hidden fixed top-20 left-0 right-0 bg-gray-900 bg-opacity-95 p-4 z-40 flex flex-col gap-4">
           <Link
-            to="/home"
+            to="/"
             onClick={() => setMobileMenuOpen(false)}
             className="flex items-center gap-2 text-gray-300 transition-all ease-in-out duration-300 hover:text-white hover:border-b-2 hover:border-amber-500"
           >

@@ -688,7 +688,7 @@ function Gallery() {
                 <motion.a
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  href="/home"
+                  href="/"
                   className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg text-white font-medium"
                 >
                   <Plus className="w-5 h-5" />

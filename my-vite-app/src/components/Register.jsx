@@ -57,7 +57,7 @@ function Register() {
       setToast({ message: res.error, isError: true });
     } else {
       setToast({ message: "Account created! Please login.", isError: false });
-      navigate("/");
+      navigate("/login");
     }
   };
 
@@ -197,7 +197,7 @@ function Register() {
             <p className="text-white/60">
               Already have an account?{" "}
               <Link
-                to="/"
+                to="/login"
                 className="text-purple-400 hover:text-purple-300 font-medium transition-colors"
               >
                 Login here

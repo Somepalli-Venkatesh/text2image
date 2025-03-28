@@ -169,7 +169,7 @@ function ForgotPassword() {
 
           <div className="mt-6 text-center">
             <Link
-              to="/"
+              to="/login"
               className="text-gray-400 hover:text-white transition-colors duration-200 flex items-center justify-center space-x-1"
             >
               <span>Back to Login</span>

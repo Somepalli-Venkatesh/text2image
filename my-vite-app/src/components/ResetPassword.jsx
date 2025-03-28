@@ -22,7 +22,7 @@ function ResetPassword() {
       setToast({ message: res.error, isError: true });
     } else {
       setToast({ message: res.message, isError: false });
-      navigate("/");
+      navigate("/login");
     }
   };
 
@@ -108,7 +108,7 @@ function ResetPassword() {
 
           <div className="mt-6 text-center">
             <Link
-              to="/"
+              to="/login"
               className="text-emerald-200/70 hover:text-white transition-colors duration-200 flex items-center justify-center space-x-1"
             >
               <span>Back to Login</span>
