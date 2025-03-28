@@ -14,10 +14,8 @@ import {
   X,
   Mail,
   Settings,
-  Moon,
-  Sun,
-  BarChart2, // Imported gauge icon
-  Info, // Newly imported About icon
+  BarChart2,
+  Info,
 } from "lucide-react";
 import logo from "../assets/download_logo2.png";
 
@@ -26,8 +24,8 @@ function NavBar() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  // New state for toggling Accuracy link visibility
   const [showAccuracy, setShowAccuracy] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const username = localStorage.getItem("username");
   const dropdownRef = useRef(null);
 
@@ -52,10 +50,19 @@ function NavBar() {
     return null;
   }
 
+  // Modified logout handler navigates to home page
   const handleLogout = async () => {
     await fetch("/api/logout", { method: "POST", credentials: "include" });
     localStorage.removeItem("username");
-    navigate("/login");
+    navigate("/");
+  };
+
+  // Handle protected navigation
+  const handleProtectedNavigation = (e, path) => {
+    if (!username) {
+      e.preventDefault();
+      setShowLoginModal(true);
+    }
   };
 
   return (
@@ -65,7 +72,7 @@ function NavBar() {
           <div className="flex justify-between items-center h-full">
             {/* Logo Section */}
             <Link
-              to="/login"
+              to="/"
               className="flex items-center gap-2 text-2xl font-bold bg-gradient-to-r from-black to-amber-600 bg-clip-text text-transparent transition-all ease-in-out duration-300 hover:shadow-md"
             >
               <img src={logo} alt="Logo" className="h-10 w-auto" />
@@ -90,6 +97,7 @@ function NavBar() {
               </Link>
               <Link
                 to="/gallery"
+                onClick={(e) => handleProtectedNavigation(e, "/gallery")}
                 className="nav-link group flex items-center gap-2 text-gray-300 transition-all ease-in-out duration-300 hover:text-white hover:border-b-2 hover:border-amber-500"
               >
                 <Image size={18} />
@@ -97,6 +105,7 @@ function NavBar() {
               </Link>
               <Link
                 to="/generator"
+                onClick={(e) => handleProtectedNavigation(e, "/generator")}
                 className="nav-link group flex items-center gap-2 text-gray-300 transition-all ease-in-out duration-300 hover:text-white hover:border-b-2 hover:border-amber-500"
               >
                 <Camera size={18} />
@@ -109,7 +118,6 @@ function NavBar() {
                 <Mail size={18} />
                 <span>Contact</span>
               </Link>
-              {/* New About Link */}
               <Link
                 to="/about"
                 className="nav-link group flex items-center gap-2 text-gray-300 transition-all ease-in-out duration-300 hover:text-white hover:border-b-2 hover:border-amber-500"
@@ -133,7 +141,6 @@ function NavBar() {
                     >
                       <Settings size={20} className="text-gray-300" />
                     </Link>
-                    {/* Toggle Button for Accuracy */}
                     <button
                       onClick={() => setShowAccuracy(!showAccuracy)}
                       className="p-2 rounded-full bg-gray-900 hover:bg-gray-800 transition"
@@ -145,7 +152,6 @@ function NavBar() {
                         }
                       />
                     </button>
-                    {/* Conditionally render the Accuracy Link */}
                     {showAccuracy && (
                       <Link
                         to="/accuracy"
@@ -155,7 +161,6 @@ function NavBar() {
                       </Link>
                     )}
                   </div>
-                  {/* Highlighted Logged In User Button */}
                   <button
                     onClick={() => setDropdownOpen(!dropdownOpen)}
                     className="flex items-center gap-2 p-2 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-lg transition"
@@ -318,7 +323,10 @@ function NavBar() {
           </Link>
           <Link
             to="/gallery"
-            onClick={() => setMobileMenuOpen(false)}
+            onClick={(e) => {
+              handleProtectedNavigation(e, "/gallery");
+              setMobileMenuOpen(false);
+            }}
             className="flex items-center gap-2 text-gray-300 transition-all ease-in-out duration-300 hover:text-white hover:border-b-2 hover:border-amber-500"
           >
             <Image size={18} />
@@ -326,7 +334,10 @@ function NavBar() {
           </Link>
           <Link
             to="/generator"
-            onClick={() => setMobileMenuOpen(false)}
+            onClick={(e) => {
+              handleProtectedNavigation(e, "/generator");
+              setMobileMenuOpen(false);
+            }}
             className="flex items-center gap-2 text-gray-300 transition-all ease-in-out duration-300 hover:text-white hover:border-b-2 hover:border-amber-500"
           >
             <Camera size={18} />
@@ -340,7 +351,6 @@ function NavBar() {
             <Mail size={18} />
             <span>Contact</span>
           </Link>
-          {/* New Mobile About Link */}
           <Link
             to="/about"
             onClick={() => setMobileMenuOpen(false)}
@@ -349,7 +359,6 @@ function NavBar() {
             <Info size={18} />
             <span>About</span>
           </Link>
-          {/* Mobile Accuracy Button */}
           <Link
             to="/accuracy"
             onClick={() => setMobileMenuOpen(false)}
@@ -358,6 +367,22 @@ function NavBar() {
             <BarChart2 size={18} />
             <span>Accuracy</span>
           </Link>
+        </div>
+      )}
+
+      {/* Login Modal */}
+      {showLoginModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-xl p-6 w-11/12 max-w-sm text-center">
+            <h2 className="text-xl font-bold mb-4">Access Denied</h2>
+            <p className="mb-6">Please login first to access this page.</p>
+            <button
+              onClick={() => setShowLoginModal(false)}
+              className="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 transition"
+            >
+              Close
+            </button>
+          </div>
         </div>
       )}
     </>
