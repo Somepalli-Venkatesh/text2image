@@ -1,30 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import anime from "animejs";
 
 const Home = () => {
   const navigate = useNavigate();
-  // Simulated user login status; replace with your auth logic (e.g., context or redux)
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const navToGenerator = () => {
-    if (isLoggedIn) {
-      navigate("/generator");
-    } else {
-      // If not logged in, show the login modal
-      setShowLoginModal(true);
-    }
-  };
-
-  const handleLogin = () => {
-    // Simulate login success - replace with your actual login functionality
-    setIsLoggedIn(true);
-    setShowLoginModal(false);
-    // Optionally navigate immediately after login:
     navigate("/generator");
   };
-
   useEffect(() => {
     // Create particle canvas for both main and footer
     const createParticleCanvas = (containerClass) => {
@@ -245,31 +228,6 @@ const Home = () => {
           </div>
         </div>
       </main>
-
-      {/* Login Modal with Black, Grey, Blue Theme */}
-      {showLoginModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-gray-900 rounded-lg p-8 max-w-sm w-full shadow-lg">
-            <h2 className="text-2xl font-bold mb-4 text-white">Login</h2>
-            <p className="mb-4 text-gray-300">
-              Please log in to access the generator.
-            </p>
-            {/* Replace with your actual login form */}
-            <button
-              onClick={handleLogin}
-              className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors"
-            >
-              Login
-            </button>
-            <button
-              onClick={() => setShowLoginModal(false)}
-              className="w-full mt-2 border border-gray-600 text-gray-300 py-2 rounded hover:bg-gray-800 transition-colors"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Enhanced Footer with Animations */}
       <footer className="relative bg-gradient-to-br from-black via-gray-900 to-black text-gray-400 py-12 overflow-hidden">
