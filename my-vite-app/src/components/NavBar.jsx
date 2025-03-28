@@ -370,15 +370,19 @@ function NavBar() {
         </div>
       )}
 
-      {/* Login Modal */}
+      {/* Login Modal with Dark Theme */}
       {showLoginModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 w-11/12 max-w-sm text-center">
-            <h2 className="text-xl font-bold mb-4">Access Denied</h2>
-            <p className="mb-6">Please login first to access this page.</p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75">
+          <div className="bg-gray-800 rounded-lg shadow-xl p-6 w-11/12 max-w-sm text-center">
+            <h2 className="text-2xl font-bold mb-4 text-blue-400">
+              Access Denied
+            </h2>
+            <p className="mb-6 text-gray-300">
+              Please login first to access this page.
+            </p>
             <button
               onClick={() => setShowLoginModal(false)}
-              className="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 transition"
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
             >
               Close
             </button>
