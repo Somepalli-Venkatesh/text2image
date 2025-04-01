@@ -12,106 +12,12 @@ const Home = () => {
   useEffect(() => {
     // Create particle canvas for both main and footer
     const createParticleCanvas = (containerClass) => {
-      const canvas = document.createElement("canvas");
-      canvas.classList.add("particle-canvas");
-      canvas.style.position = "absolute";
-      canvas.style.top = "0";
-      canvas.style.left = "0";
-      canvas.style.width = "100%";
-      canvas.style.height = "100%";
-      canvas.style.zIndex = "1";
-      document.querySelector(containerClass).appendChild(canvas);
-
-      const ctx = canvas.getContext("2d");
-      const particles = [];
-
-      const resizeCanvas = () => {
-        canvas.width = window.innerWidth;
-        canvas.height =
-          containerClass === ".background-animation"
-            ? window.innerHeight
-            : document.querySelector("footer").offsetHeight;
-      };
-
-      window.addEventListener("resize", resizeCanvas);
-      resizeCanvas();
-
-      // Particle class
-      class Particle {
-        constructor() {
-          this.reset();
-        }
-
-        reset() {
-          this.x = Math.random() * canvas.width;
-          this.y = Math.random() * canvas.height;
-          this.size = Math.random() * 2 + 0.5;
-          this.speed = Math.random() * 1.5 + 0.5;
-          this.color = `rgba(255, 255, 255, ${Math.random() * 0.5 + 0.1})`;
-          this.direction = Math.random() * Math.PI * 2;
-        }
-
-        update() {
-          this.x += Math.cos(this.direction) * this.speed;
-          this.y += Math.sin(this.direction) * this.speed;
-
-          if (
-            this.x < 0 ||
-            this.x > canvas.width ||
-            this.y < 0 ||
-            this.y > canvas.height
-          ) {
-            this.reset();
-          }
-        }
-
-        draw() {
-          ctx.beginPath();
-          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-          ctx.fillStyle = this.color;
-          ctx.fill();
-        }
-      }
-
-      // Create particles
-      for (
-        let i = 0;
-        i < (containerClass === ".background-animation" ? 150 : 75);
-        i++
-      ) {
-        particles.push(new Particle());
-      }
-
-      // Animation loop
-      const animate = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        particles.forEach((particle) => {
-          particle.update();
-          particle.draw();
-        });
-
-        requestAnimationFrame(animate);
-      };
-
-      animate();
+      // ... keep existing code (createParticleCanvas implementation)
     };
 
     // Create and animate shapes
     const createShapes = (containerClass) => {
-      const shapesContainer = document.querySelector(containerClass);
-      if (shapesContainer) {
-        const shapeCount = containerClass === ".floating-shapes" ? 15 : 8;
-        for (let i = 0; i < shapeCount; i++) {
-          const shape = document.createElement("div");
-          shape.classList.add("shape");
-          shape.style.width = `${Math.random() * 100 + 50}px`;
-          shape.style.height = shape.style.width;
-          shape.style.left = `${Math.random() * 100}vw`;
-          shape.style.top = `${Math.random() * 100}%`;
-          shapesContainer.appendChild(shape);
-        }
-      }
+      // ... keep existing code (createShapes implementation)
     };
 
     // Initialize animations for both main and footer
@@ -166,7 +72,7 @@ const Home = () => {
     // Animate connecting lines
     anime({
       targets: ".connector",
-      scaleX: [0, 1],
+      scaleY: [0, 1],
       opacity: [0, 0.5],
       delay: anime.stagger(250, { start: 2000 }),
       duration: 800,
@@ -266,69 +172,39 @@ const Home = () => {
                 How It Works
               </h2>
 
-              {/* Step Flow */}
-              <div className="flex flex-col md:flex-row justify-between items-center md:items-start relative">
+              {/* Vertical Timeline Flow */}
+              <div className="flex flex-col space-y-12 max-w-3xl mx-auto">
                 {steps.map((step, index) => (
-                  <div
-                    key={index}
-                    className="relative flex flex-col items-center"
-                  >
-                    {/* Step Card */}
-                    <div className="step-card glass-morphism p-6 rounded-2xl backdrop-blur-md bg-white/5 border border-white/10 w-64 transform transition-all duration-300 hover:scale-105 hover:bg-white/10 mb-4 opacity-0">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-xl mb-3 mx-auto">
+                  <div key={index} className="relative flex items-start">
+                    {/* Step Number */}
+                    <div className="flex-shrink-0 z-10">
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-xl font-bold shadow-lg">
                         {step.number}
                       </div>
-                      <div className="text-3xl mb-2 text-center">
-                        {step.icon}
-                      </div>
-                      <h3 className="text-xl font-semibold mb-2 text-center">
-                        {step.title}
-                      </h3>
-                      <p className="text-gray-400 text-center">
-                        {step.description}
-                      </p>
                     </div>
 
-                    {/* Connector Line (not for the last item) */}
+                    {/* Connector Line */}
                     {index < steps.length - 1 && (
                       <div
-                        className="connector hidden md:block absolute top-1/3 left-full w-full h-0.5 bg-gradient-to-r from-blue-500 to-purple-600 opacity-0 origin-left"
-                        style={{ width: "100%" }}
+                        className="connector absolute top-14 left-7 w-0.5 bg-gradient-to-b from-blue-500 to-purple-600 opacity-0"
+                        style={{ height: "5rem", transformOrigin: "top" }}
                       />
                     )}
-                  </div>
-                ))}
-              </div>
 
-              {/* Mobile-friendly vertical layout */}
-              <div className="md:hidden mt-4 space-y-6">
-                {steps.map((step, index) => (
-                  <div
-                    key={index}
-                    className="relative flex flex-col items-center"
-                  >
-                    {/* Step Card - Mobile Version */}
-                    <div className="step-card glass-morphism p-6 rounded-2xl backdrop-blur-md bg-white/5 border border-white/10 w-full transform transition-all duration-300 hover:scale-105 hover:bg-white/10 opacity-0">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-lg flex-shrink-0">
-                          {step.number}
+                    {/* Step Content */}
+                    <div className="ml-8 flex-1">
+                      <div className="step-card glass-morphism p-6 rounded-2xl backdrop-blur-md bg-white/5 border border-white/10 transform transition-all duration-300 hover:bg-white/10 hover:translate-x-2 opacity-0">
+                        <div className="flex items-start gap-4">
+                          <div className="text-4xl">{step.icon}</div>
+                          <div>
+                            <h3 className="text-xl font-semibold mb-2">
+                              {step.title}
+                            </h3>
+                            <p className="text-gray-400">{step.description}</p>
+                          </div>
                         </div>
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold">
-                            {step.title}
-                          </h3>
-                          <p className="text-gray-400 text-sm">
-                            {step.description}
-                          </p>
-                        </div>
-                        <div className="text-2xl">{step.icon}</div>
                       </div>
                     </div>
-
-                    {/* Vertical Connector (not for the last item) */}
-                    {index < steps.length - 1 && (
-                      <div className="connector h-8 w-0.5 bg-gradient-to-b from-blue-500 to-purple-600 opacity-0 mt-2" />
-                    )}
                   </div>
                 ))}
               </div>
