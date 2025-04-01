@@ -12,12 +12,117 @@ const Home = () => {
   useEffect(() => {
     // Create particle canvas for both main and footer
     const createParticleCanvas = (containerClass) => {
-      // ... keep existing code (createParticleCanvas implementation)
+      const canvas = document.createElement("canvas");
+      canvas.classList.add("particle-canvas");
+      canvas.style.position = "absolute";
+      canvas.style.top = "0";
+      canvas.style.left = "0";
+      canvas.style.width = "100%";
+      canvas.style.height = "100%";
+      canvas.style.zIndex = "1";
+      document.querySelector(containerClass).appendChild(canvas);
+
+      const ctx = canvas.getContext("2d");
+      const particles = [];
+
+      const resizeCanvas = () => {
+        canvas.width = window.innerWidth;
+        canvas.height =
+          containerClass === ".background-animation"
+            ? window.innerHeight
+            : document.querySelector("footer").offsetHeight;
+      };
+
+      window.addEventListener("resize", resizeCanvas);
+      resizeCanvas();
+
+      // Particle class
+      class Particle {
+        constructor() {
+          this.reset();
+        }
+
+        reset() {
+          this.x = Math.random() * canvas.width;
+          this.y = Math.random() * canvas.height;
+          this.size = Math.random() * 2 + 0.5;
+          this.speed = Math.random() * 1.5 + 0.5;
+          this.color = `rgba(255, 255, 255, ${Math.random() * 0.5 + 0.1})`;
+          this.direction = Math.random() * Math.PI * 2;
+        }
+
+        update() {
+          this.x += Math.cos(this.direction) * this.speed;
+          this.y += Math.sin(this.direction) * this.speed;
+
+          if (
+            this.x < 0 ||
+            this.x > canvas.width ||
+            this.y < 0 ||
+            this.y > canvas.height
+          ) {
+            this.reset();
+          }
+        }
+
+        draw() {
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fillStyle = this.color;
+          ctx.fill();
+        }
+      }
+
+      // Create particles
+      for (
+        let i = 0;
+        i < (containerClass === ".background-animation" ? 150 : 75);
+        i++
+      ) {
+        particles.push(new Particle());
+      }
+
+      // Animation loop
+      const animate = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach((particle) => {
+          particle.update();
+          particle.draw();
+        });
+
+        requestAnimationFrame(animate);
+      };
+
+      animate();
     };
 
     // Create and animate shapes
     const createShapes = (containerClass) => {
-      // ... keep existing code (createShapes implementation)
+      const shapesContainer = document.querySelector(containerClass);
+      if (shapesContainer) {
+        const shapeCount = containerClass === ".floating-shapes" ? 15 : 8;
+        for (let i = 0; i < shapeCount; i++) {
+          const shape = document.createElement("div");
+          shape.classList.add("shape");
+          shape.style.width = `${Math.random() * 100 + 50}px`;
+          shape.style.height = shape.style.width;
+          shape.style.left = `${Math.random() * 100}vw`;
+          shape.style.top = `${Math.random() * 100}%`;
+
+          // Add random styling to shapes
+          shape.style.background = `rgba(255, 255, 255, ${
+            Math.random() * 0.03 + 0.02
+          })`;
+          shape.style.backdropFilter = "blur(4px)";
+          shape.style.borderRadius = `${Math.random() * 40 + 10}%`;
+          shape.style.position = "absolute";
+          shape.style.transform = `rotate(${Math.random() * 360}deg)`;
+          shape.style.boxShadow = "0 0 30px rgba(255, 255, 255, 0.05)";
+
+          shapesContainer.appendChild(shape);
+        }
+      }
     };
 
     // Initialize animations for both main and footer
@@ -59,12 +164,32 @@ const Home = () => {
       easing: "easeOutElastic(1, .5)",
     });
 
+    // Animate section heading
+    anime({
+      targets: ".section-heading",
+      opacity: [0, 1],
+      translateY: [30, 0],
+      duration: 1000,
+      delay: 1400,
+      easing: "easeOutCubic",
+    });
+
     // Animate step flow
+    anime({
+      targets: ".step-number",
+      scale: [0, 1],
+      opacity: [0, 1],
+      delay: anime.stagger(200, { start: 1600 }),
+      duration: 800,
+      easing: "easeOutElastic(1, .5)",
+    });
+
+    // Animate step cards
     anime({
       targets: ".step-card",
       opacity: [0, 1],
-      translateY: [50, 0],
-      delay: anime.stagger(150, { start: 1500 }),
+      translateX: [50, 0],
+      delay: anime.stagger(200, { start: 1800 }),
       duration: 800,
       easing: "easeOutCubic",
     });
@@ -73,10 +198,50 @@ const Home = () => {
     anime({
       targets: ".connector",
       scaleY: [0, 1],
-      opacity: [0, 0.5],
+      opacity: [0, 0.7],
       delay: anime.stagger(250, { start: 2000 }),
-      duration: 800,
+      duration: 1200,
       easing: "easeOutQuad",
+    });
+
+    // Animate floating orbs in background
+    anime({
+      targets: ".floating-orb",
+      translateY: function () {
+        return anime.random(-15, 15);
+      },
+      translateX: function () {
+        return anime.random(-15, 15);
+      },
+      scale: function () {
+        return 0.9 + anime.random(0, 0.3);
+      },
+      easing: "easeInOutSine",
+      duration: function () {
+        return anime.random(1000, 3000);
+      },
+      delay: function () {
+        return anime.random(0, 1000);
+      },
+      complete: function (anim) {
+        anime({
+          targets: anim.animatables.map((a) => a.target),
+          translateY: function () {
+            return anime.random(-15, 15);
+          },
+          translateX: function () {
+            return anime.random(-15, 15);
+          },
+          scale: function () {
+            return 0.9 + anime.random(0, 0.3);
+          },
+          easing: "easeInOutSine",
+          duration: function () {
+            return anime.random(1000, 3000);
+          },
+          complete: anim.complete,
+        });
+      },
     });
 
     // Animate footer elements
@@ -88,6 +253,81 @@ const Home = () => {
       delay: anime.stagger(100),
       easing: "easeOutExpo",
     });
+
+    // Add CSS for the shape animations
+    const style = document.createElement("style");
+    style.textContent = `
+      .shape {
+        animation: float 15s ease-in-out infinite;
+        opacity: 0.4;
+      }
+      .shape:nth-child(even) {
+        animation-duration: 20s;
+        animation-delay: 2s;
+      }
+      .shape:nth-child(3n) {
+        animation-duration: 25s;
+        animation-delay: 4s;
+      }
+      @keyframes float {
+        0%, 100% {
+          transform: translateY(0) rotate(0deg);
+        }
+        33% {
+          transform: translateY(-30px) rotate(5deg);
+        }
+        66% {
+          transform: translateY(20px) rotate(-5deg);
+        }
+      }
+      .glass-morphism {
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+      }
+      .floating-orb {
+        position: absolute;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.1), transparent);
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+        z-index: 0;
+        transition: all 0.5s ease;
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Create floating orbs
+    const createOrbs = () => {
+      const container = document.querySelector(".background-animation");
+      for (let i = 0; i < 8; i++) {
+        const orb = document.createElement("div");
+        orb.classList.add("floating-orb");
+        orb.style.width = `${Math.random() * 100 + 50}px`;
+        orb.style.height = orb.style.width;
+        orb.style.left = `${Math.random() * 90}%`;
+        orb.style.top = `${Math.random() * 90}%`;
+        orb.style.opacity = `${Math.random() * 0.15 + 0.05}`;
+        container.appendChild(orb);
+      }
+    };
+
+    createOrbs();
+
+    // Clean up event listeners and animations on unmount
+    return () => {
+      window.removeEventListener("resize", () => {});
+      anime.remove(".title span");
+      anime.remove(".description");
+      anime.remove(".cta-button");
+      anime.remove(".section-heading");
+      anime.remove(".step-number");
+      anime.remove(".step-card");
+      anime.remove(".connector");
+      anime.remove(".footer-content");
+      anime.remove(".floating-orb");
+    };
   }, []);
 
   const steps = [
@@ -106,8 +346,7 @@ const Home = () => {
     {
       number: 3,
       title: "Give a prompt to generate image",
-      description:
-        "Describe what you want to see and let Generator do the magic",
+      description: "Describe what you want to see and let AI do the magic",
       icon: "✨",
     },
     {
@@ -126,7 +365,7 @@ const Home = () => {
 
   return (
     <>
-      <main className="relative min-h-screen pt-20 flex items-center justify-center overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black text-white">
+      <main className="relative min-h-screen pt-20 pb-32 flex items-center justify-center overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black text-white">
         {/* Background Animation Container */}
         <div className="background-animation absolute inset-0 opacity-40" />
 
@@ -167,41 +406,79 @@ const Home = () => {
               Get Started
             </button>
 
-            {/* Step Flow Section - Replacing the Features Grid */}
-            <div className="mt-24 mb-16 relative">
-              <h2 className="text-3xl font-bold mb-12 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
+            {/* Step Flow Section */}
+            <div className="mt-32 mb-16 relative">
+              <h2 className="section-heading text-3xl font-bold mb-16 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300 opacity-0">
                 How It Works
               </h2>
 
-              {/* Vertical Timeline Flow */}
-              <div className="flex flex-col space-y-12 max-w-3xl mx-auto">
+              {/* Vertical Flow Timeline */}
+              <div className="relative mx-auto" style={{ maxWidth: "800px" }}>
+                {/* Center line */}
+                <div
+                  className="absolute left-1/2 transform -translate-x-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500/70 via-purple-500/70 to-pink-500/70"
+                  style={{
+                    boxShadow: "0 0 15px rgba(120, 100, 255, 0.5)",
+                    background:
+                      "linear-gradient(to bottom, rgba(59, 130, 246, 0.5), rgba(139, 92, 246, 0.5), rgba(236, 72, 153, 0.5))",
+                  }}
+                />
+
                 {steps.map((step, index) => (
-                  <div key={index} className="relative flex items-start">
-                    {/* Step Number */}
-                    <div className="flex-shrink-0 z-10">
-                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-xl font-bold shadow-lg">
-                        {step.number}
+                  <div
+                    key={index}
+                    className="relative mb-24 last:mb-0 flex items-center"
+                  >
+                    {/* Content wrapper for positioning */}
+                    <div
+                      className={`w-full flex ${
+                        index % 2 === 0 ? "justify-start" : "justify-end"
+                      }`}
+                    >
+                      {/* Step number - this will be on the center line */}
+                      <div className="absolute left-1/2 transform -translate-x-1/2 z-10 flex items-center justify-center">
+                        <div
+                          className="step-number w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold shadow-lg opacity-0"
+                          style={{
+                            background:
+                              "linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(139, 92, 246, 0.8))",
+                            boxShadow: "0 0 20px rgba(139, 92, 246, 0.4)",
+                            border: "3px solid rgba(255, 255, 255, 0.2)",
+                          }}
+                        >
+                          {step.number}
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Connector Line */}
-                    {index < steps.length - 1 && (
+                      {/* Step content - alternating left/right */}
                       <div
-                        className="connector absolute top-14 left-7 w-0.5 bg-gradient-to-b from-blue-500 to-purple-600 opacity-0"
-                        style={{ height: "5rem", transformOrigin: "top" }}
-                      />
-                    )}
-
-                    {/* Step Content */}
-                    <div className="ml-8 flex-1">
-                      <div className="step-card glass-morphism p-6 rounded-2xl backdrop-blur-md bg-white/5 border border-white/10 transform transition-all duration-300 hover:bg-white/10 hover:translate-x-2 opacity-0">
-                        <div className="flex items-start gap-4">
-                          <div className="text-4xl">{step.icon}</div>
-                          <div>
-                            <h3 className="text-xl font-semibold mb-2">
-                              {step.title}
-                            </h3>
-                            <p className="text-gray-400">{step.description}</p>
+                        className={`step-card w-5/12 opacity-0 ${
+                          index % 2 === 0 ? "pr-12" : "pl-12"
+                        }`}
+                      >
+                        <div
+                          className="glass-morphism p-6 rounded-2xl transition-all duration-300 hover:bg-white/10 hover:scale-105 group"
+                          style={{
+                            boxShadow: "0 10px 30px -10px rgba(0, 0, 0, 0.5)",
+                          }}
+                        >
+                          <div className="flex items-start gap-5">
+                            <div
+                              className="text-5xl transform group-hover:scale-110 transition-transform duration-300"
+                              style={{
+                                textShadow: "0 0 10px rgba(255, 255, 255, 0.3)",
+                              }}
+                            >
+                              {step.icon}
+                            </div>
+                            <div>
+                              <h3 className="text-xl font-semibold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
+                                {step.title}
+                              </h3>
+                              <p className="text-gray-300">
+                                {step.description}
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </div>
