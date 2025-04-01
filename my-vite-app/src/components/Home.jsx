@@ -8,6 +8,7 @@ const Home = () => {
   const navToGenerator = () => {
     navigate("/");
   };
+
   useEffect(() => {
     // Create particle canvas for both main and footer
     const createParticleCanvas = (containerClass) => {
@@ -152,6 +153,26 @@ const Home = () => {
       easing: "easeOutElastic(1, .5)",
     });
 
+    // Animate step flow
+    anime({
+      targets: ".step-card",
+      opacity: [0, 1],
+      translateY: [50, 0],
+      delay: anime.stagger(150, { start: 1500 }),
+      duration: 800,
+      easing: "easeOutCubic",
+    });
+
+    // Animate connecting lines
+    anime({
+      targets: ".connector",
+      scaleX: [0, 1],
+      opacity: [0, 0.5],
+      delay: anime.stagger(250, { start: 2000 }),
+      duration: 800,
+      easing: "easeOutQuad",
+    });
+
     // Animate footer elements
     anime({
       targets: ".footer-content",
@@ -162,6 +183,39 @@ const Home = () => {
       easing: "easeOutExpo",
     });
   }, []);
+
+  const steps = [
+    {
+      number: 1,
+      title: "Login into your Account",
+      description: "Sign in with your credentials to access all features",
+      icon: "🔐",
+    },
+    {
+      number: 2,
+      title: "Go to Generator page",
+      description: "Navigate to our powerful image generator tool",
+      icon: "🖥️",
+    },
+    {
+      number: 3,
+      title: "Give a prompt to generate image",
+      description: "Describe what you want to see and let AI do the magic",
+      icon: "✨",
+    },
+    {
+      number: 4,
+      title: "Make changes to generated image",
+      description: "Refine and customize the result to your liking",
+      icon: "🎨",
+    },
+    {
+      number: 5,
+      title: "Upload the image to gallery",
+      description: "Share your creation with the community",
+      icon: "🖼️",
+    },
+  ];
 
   return (
     <>
@@ -206,24 +260,78 @@ const Home = () => {
               Get Started
             </button>
 
-            {/* Features Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-20">
-              {[
-                "Advanced Technology",
-                "Seamless Integration",
-                "Premium Support",
-              ].map((feature, index) => (
-                <div
-                  key={index}
-                  className="glass-morphism p-6 rounded-2xl transform hover:scale-105 transition-all duration-300 backdrop-blur-md bg-white/5 border border-white/10"
-                >
-                  <h3 className="text-xl font-semibold mb-2">{feature}</h3>
-                  <p className="text-gray-400">
-                    Experience the future of innovation with our cutting-edge
-                    solutions.
-                  </p>
-                </div>
-              ))}
+            {/* Step Flow Section - Replacing the Features Grid */}
+            <div className="mt-24 mb-16 relative">
+              <h2 className="text-3xl font-bold mb-12 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
+                How It Works
+              </h2>
+
+              {/* Step Flow */}
+              <div className="flex flex-col md:flex-row justify-between items-center md:items-start relative">
+                {steps.map((step, index) => (
+                  <div
+                    key={index}
+                    className="relative flex flex-col items-center"
+                  >
+                    {/* Step Card */}
+                    <div className="step-card glass-morphism p-6 rounded-2xl backdrop-blur-md bg-white/5 border border-white/10 w-64 transform transition-all duration-300 hover:scale-105 hover:bg-white/10 mb-4 opacity-0">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-xl mb-3 mx-auto">
+                        {step.number}
+                      </div>
+                      <div className="text-3xl mb-2 text-center">
+                        {step.icon}
+                      </div>
+                      <h3 className="text-xl font-semibold mb-2 text-center">
+                        {step.title}
+                      </h3>
+                      <p className="text-gray-400 text-center">
+                        {step.description}
+                      </p>
+                    </div>
+
+                    {/* Connector Line (not for the last item) */}
+                    {index < steps.length - 1 && (
+                      <div
+                        className="connector hidden md:block absolute top-1/3 left-full w-full h-0.5 bg-gradient-to-r from-blue-500 to-purple-600 opacity-0 origin-left"
+                        style={{ width: "100%" }}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Mobile-friendly vertical layout */}
+              <div className="md:hidden mt-4 space-y-6">
+                {steps.map((step, index) => (
+                  <div
+                    key={index}
+                    className="relative flex flex-col items-center"
+                  >
+                    {/* Step Card - Mobile Version */}
+                    <div className="step-card glass-morphism p-6 rounded-2xl backdrop-blur-md bg-white/5 border border-white/10 w-full transform transition-all duration-300 hover:scale-105 hover:bg-white/10 opacity-0">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-lg flex-shrink-0">
+                          {step.number}
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold">
+                            {step.title}
+                          </h3>
+                          <p className="text-gray-400 text-sm">
+                            {step.description}
+                          </p>
+                        </div>
+                        <div className="text-2xl">{step.icon}</div>
+                      </div>
+                    </div>
+
+                    {/* Vertical Connector (not for the last item) */}
+                    {index < steps.length - 1 && (
+                      <div className="connector h-8 w-0.5 bg-gradient-to-b from-blue-500 to-purple-600 opacity-0 mt-2" />
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
