@@ -1,57 +1,43 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Github,
-  Linkedin,
-  Twitter,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import anime from "animejs";
 import venkatesh from "../assets/venkatesh1.png";
 import manohar from "../assets/Manohar.jpg";
 import kusuma from "../assets/Kusuma.jpg";
+import Guide from "../assets/Guide.png";
 
 const teamMembers = [
   {
-    name: "Manohar",
-    img: manohar,
-    role: "Full Stack Developer",
-    social: {
-      github: "https://github.com/ManoharTumati",
-      linkedin: "https://www.linkedin.com/in/manohar-tumati-b86491243",
-      twitter: "https://twitter.com",
-    },
+    name: "Ch.Vijayananda Ratnam",
+    img: Guide,
+    role: "Guide",
+    social: {},
   },
   {
-    name: "Venkatesh",
+    name: "Venkatesh Somepalli",
     img: venkatesh,
-    role: "UI/UX Designer",
-    social: {
-      github: "https://github.com",
-      linkedin: "https://linkedin.com",
-      twitter: "https://twitter.com",
-    },
+    role: "Team Lead",
+    social: {},
   },
   {
-    name: "Kusuma",
+    name: "Tumati Manohar",
+    img: manohar,
+    role: "Team Member",
+    social: {},
+  },
+
+  {
+    name: "Yetukuri Venkata Kusuma",
     img: kusuma,
-    role: "Backend Developer",
-    social: {
-      github: "https://github.com/venkatakusuma9",
-      linkedin: "https://linkedin.com",
-      twitter: "https://twitter.com",
-    },
+    role: "Team Member",
+    social: {},
   },
   {
-    name: "Keerthi",
+    name: "Tupakula Keerthi",
     img: "/static/teamImages/letterV.png",
-    role: "Full Stack Developer",
-    social: {
-      github: "https://github.com",
-      linkedin: "https://linkedin.com",
-      twitter: "https://twitter.com",
-    },
+    role: "Team Member",
+    social: {},
   },
 ];
 
@@ -400,32 +386,7 @@ function Team() {
                       </h2>
                       <p className="text-gray-400 mb-6">{member.role}</p>
 
-                      <div className="flex justify-center gap-4">
-                        <a
-                          href={member.social.github}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-2 rounded-full bg-gray-700/30 hover:bg-gray-700/50 text-gray-300 hover:text-gray-100 transition-all"
-                        >
-                          <Github className="w-5 h-5" />
-                        </a>
-                        <a
-                          href={member.social.linkedin}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-2 rounded-full bg-gray-700/30 hover:bg-gray-700/50 text-gray-300 hover:text-gray-100 transition-all"
-                        >
-                          <Linkedin className="w-5 h-5" />
-                        </a>
-                        <a
-                          href={member.social.twitter}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-2 rounded-full bg-gray-700/30 hover:bg-gray-700/50 text-gray-300 hover:text-gray-100 transition-all"
-                        >
-                          <Twitter className="w-5 h-5" />
-                        </a>
-                      </div>
+                      <div className="flex justify-center gap-4"></div>
                     </motion.div>
                   </div>
                 </motion.div>
