@@ -346,7 +346,8 @@ const Home = () => {
     {
       number: 3,
       title: "Give a prompt to generate image",
-      description: "Describe what you want to see and let AI do the magic",
+      description:
+        "Describe what you want to see and let Generator do the magic",
       icon: "✨",
     },
     {
