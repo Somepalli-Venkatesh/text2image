@@ -395,8 +395,7 @@ const Home = () => {
 
             {/* Description */}
             <p className="description opacity-0 text-lg sm:text-xl text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed">
-              Experience the next generation of creative possibilities with our
-              cutting-edge platform. Create, innovate, and inspire.
+              Text to Image Generation
             </p>
 
             {/* CTA Button */}
