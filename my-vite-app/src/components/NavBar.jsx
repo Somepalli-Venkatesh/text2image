@@ -17,7 +17,7 @@ import {
   BarChart2,
   Info,
 } from "lucide-react";
-import logo from "../assets/Vtext.png";
+import logo from "../assets/VText.png";
 
 function NavBar() {
   const navigate = useNavigate();
