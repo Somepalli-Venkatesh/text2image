@@ -17,7 +17,7 @@ import {
   BarChart2,
   Info,
 } from "lucide-react";
-import logo from "../assets/download_logo2.png";
+import logo from "../assets/Vtext.png";
 
 function NavBar() {
   const navigate = useNavigate();
@@ -73,9 +73,9 @@ function NavBar() {
             {/* Logo Section */}
             <Link
               to="/"
-              className="flex items-center gap-2 text-2xl font-bold bg-gradient-to-r from-black to-amber-600 bg-clip-text text-transparent transition-all ease-in-out duration-300 hover:shadow-md"
+              className="flex items-center gap-2 text-2xl font-bold bg-gradient-to-r from-blue to-amber-600 bg-clip-text text-transparent transition-all ease-in-out duration-300 hover:shadow-md"
             >
-              <img src={logo} alt="Logo" className="h-10 w-auto" />
+              <img src={logo} alt="Logo" className="h-20 w-auto" />
               VisioText
             </Link>
 
