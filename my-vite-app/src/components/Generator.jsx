@@ -1092,7 +1092,7 @@ const Generator = () => {
               Transform Text into Art
             </h1>
             <p className="text-lg text-white/60">
-              Unleash your imagination and create stunning visuals with AI
+              Unleash your imagination and create stunning Images
             </p>
           </motion.div>
           <motion.div
