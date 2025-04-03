@@ -170,16 +170,21 @@ function Gallery() {
 
   // -------------------------------
   // Delete image handler.
+  // Delete image handler.
   const handleDelete = async (imagePath) => {
+    // imagePath is in the format "username/filename"
     if (window.confirm("Are you sure you want to delete this image?")) {
       const res = await apiDelete(
         `/api/delete_image/${encodeURIComponent(imagePath)}`
       );
       if (res.success) {
         setToast({ message: "Image deleted successfully.", isError: false });
+        // Split imagePath into username and filename
+        const [username, filename] = imagePath.split("/");
         setGalleryItems(
           galleryItems.filter(
-            (item) => item.filename !== imagePath.split("/")[1]
+            (item) =>
+              !(item.username === username && item.filename === filename)
           )
         );
       } else {
