@@ -172,9 +172,12 @@ function Gallery() {
   const handleDelete = async (imagePath) => {
     // imagePath is in the format "username/filename"
     if (window.confirm("Are you sure you want to delete this image?")) {
-      const res = await apiDelete(
-        `${BACKEND_URL}/delete_image/${encodeURIComponent(imagePath)}`
-      );
+      // Construct the URL correctly. If VITE_BACKEND_URL already includes `/api`, don't add it here.
+      const deleteUrl = `${BACKEND_URL}/delete_image/${encodeURIComponent(
+        imagePath
+      )}`;
+      console.log("DELETE URL:", deleteUrl); // For debugging the constructed URL
+      const res = await apiDelete(deleteUrl);
       if (res.success) {
         setToast({ message: "Image deleted successfully.", isError: false });
         // Split imagePath into username and filename
