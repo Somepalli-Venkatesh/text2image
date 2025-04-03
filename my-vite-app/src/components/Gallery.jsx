@@ -18,8 +18,6 @@ import {
   Star,
 } from "lucide-react";
 
-// Set this to your backend's URL
-// const BACKEND_URL = "http://localhost:5000";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 function Gallery() {
@@ -175,7 +173,7 @@ function Gallery() {
     // imagePath is in the format "username/filename"
     if (window.confirm("Are you sure you want to delete this image?")) {
       const res = await apiDelete(
-        `/api/delete_image/${encodeURIComponent(imagePath)}`
+        `${BACKEND_URL}/delete_image/${encodeURIComponent(imagePath)}`
       );
       if (res.success) {
         setToast({ message: "Image deleted successfully.", isError: false });
