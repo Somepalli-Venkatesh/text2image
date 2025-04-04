@@ -88,13 +88,7 @@ function NavBar() {
                 <Home size={18} />
                 <span>Home</span>
               </Link>
-              <Link
-                to="/team"
-                className="nav-link group flex items-center gap-2 text-gray-300 transition-all ease-in-out duration-300 hover:text-white hover:border-b-2 hover:border-amber-500"
-              >
-                <Users size={18} />
-                <span>Team</span>
-              </Link>
+
               <Link
                 to="/gallery"
                 onClick={(e) => handleProtectedNavigation(e, "/gallery")}
@@ -111,19 +105,27 @@ function NavBar() {
                 <Camera size={18} />
                 <span>Generator</span>
               </Link>
-              <Link
-                to="/contact"
-                className="nav-link group flex items-center gap-2 text-gray-300 transition-all ease-in-out duration-300 hover:text-white hover:border-b-2 hover:border-amber-500"
-              >
-                <Mail size={18} />
-                <span>Contact</span>
-              </Link>
+
               <Link
                 to="/about"
                 className="nav-link group flex items-center gap-2 text-gray-300 transition-all ease-in-out duration-300 hover:text-white hover:border-b-2 hover:border-amber-500"
               >
                 <Info size={18} />
                 <span>About</span>
+              </Link>
+              <Link
+                to="/team"
+                className="nav-link group flex items-center gap-2 text-gray-300 transition-all ease-in-out duration-300 hover:text-white hover:border-b-2 hover:border-amber-500"
+              >
+                <Users size={18} />
+                <span>Team</span>
+              </Link>
+              <Link
+                to="/contact"
+                className="nav-link group flex items-center gap-2 text-gray-300 transition-all ease-in-out duration-300 hover:text-white hover:border-b-2 hover:border-amber-500"
+              >
+                <Mail size={18} />
+                <span>Contact</span>
               </Link>
             </div>
 
