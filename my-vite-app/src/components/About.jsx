@@ -372,24 +372,24 @@ const AboutSection = () => {
   ];
 
   // New: Project impact metrics
-  const impactMetrics = [
-    {
-      metric: "40%",
-      description: "Increase in user engagement",
-    },
-    {
-      metric: "60%",
-      description: "Faster response times",
-    },
-    {
-      metric: "25%",
-      description: "Reduction in development costs",
-    },
-    {
-      metric: "90%",
-      description: "Positive user feedback",
-    },
-  ];
+  // const impactMetrics = [
+  //   {
+  //     metric: "40%",
+  //     description: "Increase in user engagement",
+  //   },
+  //   {
+  //     metric: "60%",
+  //     description: "Faster response times",
+  //   },
+  //   {
+  //     metric: "25%",
+  //     description: "Reduction in development costs",
+  //   },
+  //   {
+  //     metric: "90%",
+  //     description: "Positive user feedback",
+  //   },
+  // ];
 
   // Render the appropriate content based on the active tab
   const renderTabContent = () => {
@@ -417,7 +417,7 @@ const AboutSection = () => {
               </ul>
 
               {/* Impact Metrics */}
-              <h3 className="text-xl font-semibold mb-6">Project Impact</h3>
+{/*               <h3 className="text-xl font-semibold mb-6">Project Impact</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {impactMetrics.map((item, idx) => (
                   <div
@@ -433,7 +433,7 @@ const AboutSection = () => {
                   </div>
                 ))}
               </div>
-            </div>
+            </div> */}
 
             {/* Timeline Section */}
             <div className="about-animation mb-16">
