@@ -473,7 +473,7 @@ function Gallery() {
           animate={{ opacity: 1, y: 0 }}
           className="text-5xl font-bold mb-12 text-center bg-gradient-to-r from-black to-amber-400 bg-clip-text text-transparent"
         >
-          My Image Gallery
+           Image Gallery
         </motion.h1>
 
         {/* Gallery Grid using a standard grid layout */}
