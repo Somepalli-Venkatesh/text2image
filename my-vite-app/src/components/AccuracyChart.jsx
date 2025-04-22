@@ -24,7 +24,7 @@ function AccuracyChart() {
             percent={accuracy}
             textColor="#E5E7EB" // Light gray text for readability
           />
-          <p className="text-center mt-4 text-xl text-white">Accuracy: 90%</p>
+          <p className="text-center mt-4 text-xl text-white">Accuracy: 91%</p>
         </div>
       </div>
     </div>
