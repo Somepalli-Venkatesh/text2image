@@ -432,8 +432,8 @@ const AboutSection = () => {
                     </div>
                   </div>
                 ))}
-              </div>
-            </div> */}
+              </div>*/}
+            </div> 
 
             {/* Timeline Section */}
             <div className="about-animation mb-16">
