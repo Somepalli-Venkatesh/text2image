@@ -728,7 +728,7 @@ const AboutSection = () => {
             </div>
 
             {/* Additional Resources */}
-            <div className="mt-16 glass-morphism p-8 rounded-2xl backdrop-blur-lg bg-white/5 border border-white/10">
+{/*             <div className="mt-16 glass-morphism p-8 rounded-2xl backdrop-blur-lg bg-white/5 border border-white/10">
               <h3 className="text-xl font-semibold mb-6">
                 Additional Resources
               </h3>
@@ -790,7 +790,7 @@ const AboutSection = () => {
                   </div>
                 </a>
               </div>
-            </div>
+            </div> */}
           </div>
         );
 
