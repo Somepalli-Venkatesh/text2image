@@ -295,10 +295,10 @@ const AboutSection = () => {
       description:
         "Implements best security practices for protecting user information.",
     },
-    {
-      title: "Real-time Updates",
-      description: "Instant content updates without requiring page refreshes.",
-    },
+    // {
+    //   title: "Real-time Updates",
+    //   description: "Instant content updates without requiring page refreshes.",
+    // },
   ];
 
   // Enhanced Timeline with icons for each milestone
