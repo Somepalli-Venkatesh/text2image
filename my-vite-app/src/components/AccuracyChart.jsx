@@ -4,8 +4,8 @@ import GaugeChart from "react-gauge-chart";
 import { BarChart2 } from "lucide-react";
 
 function AccuracyChart() {
-  // The gauge component expects a value between 0 and 1, so 90% becomes 0.9
-  const accuracy = 0.9;
+  
+  const accuracy = 0.91;
 
   return (
     // Add a top margin to avoid overlap with the fixed navbar (h-20 = 5rem)
