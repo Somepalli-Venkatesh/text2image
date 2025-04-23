@@ -2,7 +2,7 @@
 
 🖌️ **Transform text prompts into stunning visuals** using a Deep Convolutional GAN (DC-GAN). This full-stack  project combines NLP and generative models for creative image synthesis, complete with user interactions and social features.
 
----
+--------------------------------------------------------------
 
 ## 🚀 Key Features
 ### 🧑💻 User Experience
@@ -21,7 +21,7 @@
   - 🔍 Search by tags/descriptions
 
 
----
+--------------------------------------------------------------------
 
 ## 🛠️ Tech Stack
 ### Frontend
@@ -33,7 +33,7 @@
 ![MongoDB](https://img.shields.io/badge/-MongoDB-47A248?logo=mongodb&style=for-the-badge)
 
 
----
+----------------------------------------------------------------------
 
 ## 🛠 Setup & Installation
 
@@ -63,7 +63,7 @@ pip install -r requirements.txt
 ```bash
 python app_cim.py
 ```
-
+----------------------------------------------------------------
 ## 💾 Dataset
 
 - **Source**: CIFAR-100 (60,000 images, 100 classes)  
@@ -73,7 +73,7 @@ python app_cim.py
   - Text prompts encoded with pre-trained BERT  
 - **Augmentation**:
   - Random flips, rotations, color jitter  
-
+---------------------------------------------------------------
 
 ## 🎓 Learning Resources
 
@@ -81,7 +81,7 @@ python app_cim.py
 - **Original DCGAN paper**: “Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks” by Radford et al. (2015)  
 - **Text-to-Image Survey**: https://arxiv.org/abs/2008.03187  
 - **TensorFlow GAN Tutorial**: https://www.tensorflow.org/tutorials/generative/dcgan
-
+-------------------------------------------------------------------
 ## 📬 Contact Us
 
 | 👤 Name                | 📧 Email Address                          |
