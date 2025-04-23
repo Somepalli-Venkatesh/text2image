@@ -56,12 +56,12 @@ npm run dev
 4. **Set up the backend**
 ```bash
 cd backend
-npm install
+pip install -r requirements.txt
 ```
 
 5. **Start the backend**
 ```bash
-npm start
+python app_cim.py
 ```
 
 ## 💾 Dataset
