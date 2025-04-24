@@ -63,6 +63,23 @@ pip install -r requirements.txt
 ```bash
 python app_cim.py
 ```
+## Project Structure
+```
+text2Image/
+├── client/               # React + Vite frontend application
+│   ├── public/           # Static assets
+│   └── src/              # Components, pages, styles
+├── backend/               # Flask backend 
+│   ├── static/gallery            
+│   ├── app.py        
+│   ├── bert.py          
+│   ├── cifargenerator.h5          
+│   ├── cifardiscriminator.h5     
+│   ├── dcgan.py 
+│   ├── image_gen.py  
+│   └── requirements.txt          
+└── README.md             # Project overview and setup
+```
 
 ## 💾 Dataset
 
